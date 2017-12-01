@@ -1,0 +1,20 @@
+[
+	{
+		"consumers": [],
+		"durable": true,
+		"is_need_token": true,
+		"mode": "topic",
+		"name": "aa",
+		"token": "adadjhk",
+		"comment": "adads"
+	},
+	{
+		"consumers": [],
+		"durable": true,
+		"is_need_token": true,
+		"mode": "topic",
+		"name": "aaadjajd",
+		"token": "adadjhk",
+		"comment": "adads"
+	}
+]
