@@ -90,13 +90,13 @@ func (qm *QMessage) DeleteMessageByName(name string) error {
 }
 
 // get message by name
-func (qm *QMessage) GetMessageByName(name string) *Message {
+func (qm *QMessage) GetMessageByName(name string) (*Message, error) {
 	for _, message := range qm.Messages {
 		if message.Name == name {
-			return message
+			return message, nil
 		}
 	}
-	return &Message{}
+	return &Message{}, errors.New("message not exist!")
 }
 
 // get all messages
@@ -121,9 +121,6 @@ func (qm *QMessage) AddConsumer(name string, consumerValue *Consumer) error {
 				if consumer.ID == consumerValue.ID {
 					return errors.New("consumer id is exist! ")
 				}
-				if consumer.URL == consumerValue.URL {
-					return errors.New("consumer url is exist! ")
-				}
 			}
 			message.Consumers = append(message.Consumers, consumerValue)
 			return nil
@@ -139,36 +136,61 @@ func (qm *QMessage) GetConsumersByMessageName(name string) []*Consumer {
 			return message.Consumers
 		}
 	}
-	return []*Consumer{}
+	return make([]*Consumer, 0)
 }
 
 // get consumer by message name and consumer id
-func (qm *QMessage) GetConsumerById(name string, id string) *Consumer {
+func (qm *QMessage) GetConsumerById(name string, id string) (*Consumer, error) {
 	consumers := qm.GetConsumersByMessageName(name)
 	if len(consumers) == 0 {
-		return &Consumer{}
+		return &Consumer{}, errors.New("consumer not exist!")
 	}
 	for _, consumer := range consumers {
 		if consumer.ID == id {
-			return consumer
+			return consumer, nil
 		}
 	}
-	return &Consumer{}
+	return &Consumer{}, errors.New("consumer not exist!")
 }
 
 // update consumer by message name and consumer id
 func (qm *QMessage) UpdateConsumerByName(name string, consumerVal *Consumer) error {
-	consumers := qm.GetConsumersByMessageName(name)
-	if len(consumers) == 0 {
-		return errors.New("message not exist!")
+	qm.Lock.Lock()
+	defer qm.Lock.Unlock()
+	message, err := qm.GetMessageByName(name)
+	if err != nil {
+		return err
 	}
-	for _, consumer := range consumers {
+	for _, consumer := range message.Consumers {
 		if consumer.ID == consumerVal.ID {
-			consumer = consumerVal
+			consumer.URL = consumerVal.URL
+			consumer.RouteKey = consumerVal.RouteKey
+			consumer.Timeout = consumerVal.Timeout
+			consumer.Code = consumerVal.Code
+			consumer.CheckCode = consumerVal.CheckCode
+			consumer.Comment = consumerVal.Comment
 			return nil
 		}
 	}
 	return errors.New("consumer id not exist!")
+}
+
+// delete consumer by message name and consumer id
+func (qm *QMessage) DeleteConsumerByNameAndId(name string, consumerId string) error {
+	qm.Lock.Lock()
+	defer qm.Lock.Unlock()
+	message, err := qm.GetMessageByName(name)
+	if err != nil {
+		return err
+	}
+	consumers := []*Consumer{}
+	for _, consumer := range message.Consumers {
+		if consumer.ID != consumerId {
+			consumers = append(consumers, consumer)
+		}
+	}
+	message.Consumers = consumers
+	return nil
 }
 
 // write to ...

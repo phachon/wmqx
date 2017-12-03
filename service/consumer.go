@@ -114,7 +114,26 @@ func (this *ConsumerService) Update(ctx *fasthttp.RequestCtx) {
 
 // delete a consumer
 func (this *ConsumerService) Delete(ctx *fasthttp.RequestCtx) {
-
+	r := this.AccessToken(ctx)
+	if r != true {
+		this.jsonError(ctx, "token error", nil)
+		return
+	}
+	
+	consumerId := this.GetCtxString(ctx, "consumer_id")
+	exchangeName := this.GetCtxString(ctx, "name")
+	
+	if consumerId == "" || exchangeName == "" {
+		this.jsonError(ctx, "param require!", nil)
+		return
+	}
+	
+	// delete a consumer to QMessage
+	container.Ctx.QMessage.DeleteConsumerByNameAndId(exchangeName, consumerId)
+	
+	container.Ctx.ResetQMessage()
+	
+	this.jsonSuccess(ctx, "ok", nil)
 }
 
 // get consumer status
