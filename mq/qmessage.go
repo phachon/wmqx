@@ -142,7 +142,7 @@ func (qm *QMessage) GetConsumersByMessageName(name string) []*Consumer {
 	return []*Consumer{}
 }
 
-// get consumers by message and consumer id
+// get consumer by message name and consumer id
 func (qm *QMessage) GetConsumerById(name string, id string) *Consumer {
 	consumers := qm.GetConsumersByMessageName(name)
 	if len(consumers) == 0 {
@@ -154,6 +154,21 @@ func (qm *QMessage) GetConsumerById(name string, id string) *Consumer {
 		}
 	}
 	return &Consumer{}
+}
+
+// update consumer by message name and consumer id
+func (qm *QMessage) UpdateConsumerByName(name string, consumerVal *Consumer) error {
+	consumers := qm.GetConsumersByMessageName(name)
+	if len(consumers) == 0 {
+		return errors.New("message not exist!")
+	}
+	for _, consumer := range consumers {
+		if consumer.ID == consumerVal.ID {
+			consumer = consumerVal
+			return nil
+		}
+	}
+	return errors.New("consumer id not exist!")
 }
 
 // write to ...

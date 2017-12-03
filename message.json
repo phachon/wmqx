@@ -1,6 +1,25 @@
 [
 	{
-		"consumers": [],
+		"consumers": [
+			{
+				"id": "b0a38e68-8b36-4d85-6610-4e10425e43f8",
+				"url": "htp://test.com",
+				"route_key": "",
+				"timeout": 5000,
+				"code": 200,
+				"check_code": false,
+				"comment": "ladjl"
+			},
+			{
+				"id": "95fc0a77-5d08-4aec-5487-f9dd2f91cfcb",
+				"url": "htp://test.com/ui",
+				"route_key": "",
+				"timeout": 5000,
+				"code": 200,
+				"check_code": false,
+				"comment": "ladjl"
+			}
+		],
 		"durable": true,
 		"is_need_token": true,
 		"mode": "topic",

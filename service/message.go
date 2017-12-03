@@ -30,7 +30,7 @@ func (this *MessageService) Add(ctx *fasthttp.RequestCtx) {
 	mode := this.GetCtxString(ctx, "mode")
 	token := this.GetCtxString(ctx, "token")
 
-	if name == "" || comment == "" || durable == "" {
+	if name == "" || comment == ""{
 		this.jsonError(ctx, "param require!", nil)
 		return
 	}
@@ -75,7 +75,7 @@ func (this *MessageService) Update(ctx *fasthttp.RequestCtx) {
 	mode := this.GetCtxString(ctx, "mode")
 	token := this.GetCtxString(ctx, "token")
 
-	if name == "" || comment == "" || durable == "" {
+	if name == "" || comment == "" {
 		this.jsonError(ctx, "param require!", nil)
 		return
 	}
