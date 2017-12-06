@@ -56,6 +56,7 @@ func (this *MessageService) Add(ctx *fasthttp.RequestCtx) {
 		return
 	}
 	container.Ctx.ResetQMessage()
+	container.Ctx.InitRabbitMQ()
 
 	this.jsonSuccess(ctx, "ok", nil)
 }

@@ -31,14 +31,12 @@ type Consumer struct {
 type QMessage struct {
 	Lock *sync.Mutex
 	Messages []*Message
-	MessageChan chan int
 }
 
 func NewQMessage() *QMessage {
 	return &QMessage{
 		Lock: &sync.Mutex{},
 		Messages: []*Message{},
-		MessageChan: make(chan int, 1),
 	}
 }
 

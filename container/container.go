@@ -9,6 +9,8 @@ import (
 	"strings"
 	"github.com/fatih/color"
 	"rmqc/mq"
+	"rmqc/pools"
+	"errors"
 )
 
 var (
@@ -18,6 +20,8 @@ var (
 type Container struct {
 	Config *viper.Viper
 	QMessage *mq.QMessage
+	MQPools *pools.MQ
+	ConsumerChan chan string
 }
 
 // return container object
@@ -25,6 +29,8 @@ func NewContainer() *Container {
 	ct := &Container{
 		Config: viper.New(),
 		QMessage: mq.NewQMessage(),
+		MQPools: pools.NewPoolsMQ(),
+		ConsumerChan: make(chan string, 1),
 	}
 	return ct
 }
@@ -115,38 +121,104 @@ func (container *Container) InitConfig() {
 }
 
 // init QMessage: read message.json file
-func (container *Container) InitQMessage() {
+func (container *Container) InitQMessage() error {
 	messageFile := container.Config.GetString("consume.Datafile")
 	file, err := os.OpenFile(messageFile, os.O_RDONLY|os.O_CREATE, 0766)
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		return err
 	}
 	defer file.Close()
 
 	err = container.QMessage.ReadFrom(file)
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		return err
 	}
-	fmt.Println(len(container.QMessage.Messages))
+	return nil
+}
+
+// init rabbitMq pools
+func (container *Container) InitMQPools() {
+	container.MQPools.Init(20)
+}
+
+// init rabbit mq
+func (container *Container) InitRabbitMQ() error {
+	rabbitMq, err := container.MQPools.GetMQ()
+	if err != nil {
+		return errors.New("rabbitmq pools faild: "+err.Error())
+	}
+	defer container.MQPools.Recover(rabbitMq)
+
+	container.QMessage.Lock.Lock()
+	defer container.QMessage.Lock.Unlock()
+
+	messages := container.QMessage.Messages
+	for _, message := range messages {
+		// declare exchange
+		err := rabbitMq.DeclareExchange(message.Name, message.Mode, message.Durable)
+		if err != nil {
+			return errors.New("Declare exchange faild: "+err.Error())
+		}
+		// declare queue
+		for _, consumer := range message.Consumers {
+			consumerKey := message.Name +"-"+ consumer.ID
+			err := rabbitMq.DeclareQueue(consumerKey, message.Durable)
+			if err != nil {
+				return errors.New("Declare queue faild: "+err.Error())
+			}
+			// bind queue to exchange
+			err = rabbitMq.BindQueueToExchange(consumerKey, message.Name, consumer.RouteKey)
+			if err != nil {
+				return errors.New("bind queue exchange fail: "+err.Error())
+			}
+		}
+	}
+	return nil
+}
+
+// init consumer
+func (container *Container) InitConsumer() {
+
+}
+
+// publish message to mq
+func (container *Container) Publish(body string, exchangeName string, token string, routeKey string) (err error) {
+	qMessage, err := container.QMessage.GetMessageByName(exchangeName)
+	if err != nil {
+		return
+	}
+	if qMessage.IsNeedToken && qMessage.Token != token {
+		return errors.New("token error")
+	}
+
+	rabbitMq, err := container.MQPools.GetMQ()
+	if err != nil {
+		return errors.New("rabbitmq pools faild: "+err.Error())
+	}
+	defer container.MQPools.Recover(rabbitMq)
+
+	return rabbitMq.Publish(exchangeName, routeKey, body)
+}
+
+// send consumer sign
+func (container *Container) SendConsumerSign(action string) {
+	container.ConsumerChan <- action
 }
 
 // reset QMessage: reset messages write file
-func (container *Container) ResetQMessage() {
+func (container *Container) ResetQMessage() error {
 	messageFile := container.Config.GetString("consume.Datafile")
 	file, err := os.OpenFile(messageFile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0766)
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		return err
 	}
 	defer file.Close()
 
 	err = container.QMessage.WriteTo(file, true)
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		return err
 	}
+	return nil
 }
 
 func printExample() {

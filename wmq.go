@@ -26,15 +26,28 @@ func (wmq *Wmq) Run()  {
 // before init config
 func (wmq *Wmq) beforeInit() {
 	container.Ctx.InitConfig()
-	container.Ctx.InitQMessage()
+	if err := container.Ctx.InitQMessage(); err != nil {
+		panic(err.Error())
+	}
+	container.Ctx.InitMQPools()
+	if err := container.Ctx.InitRabbitMQ(); err != nil {
+		panic(err.Error())
+	}
+	container.Ctx.InitConsumer()
 }
 
 // start api server
 func (wmq *Wmq) startApiServer() {
-	fasthttp.ListenAndServe("127.0.0.1:3302", NewRouter().Api().Handler)
+	err := fasthttp.ListenAndServe("127.0.0.1:3302", NewRouter().Api().Handler)
+	if err != nil {
+		panic("start publish server fail:"+err.Error())
+	}
 }
 
 // start publish server
 func (wmq *Wmq) startPublishServer()  {
-	fasthttp.ListenAndServe("127.0.0.1::3303", NewRouter().Api().Handler)
+	err := fasthttp.ListenAndServe("127.0.0.1:3303", NewRouter().Publish().Handler)
+	if err != nil {
+		panic("start publish server fail:"+err.Error())
+	}
 }

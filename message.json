@@ -3,8 +3,8 @@
 		"consumers": [
 			{
 				"id": "b0a38e68-8b36-4d85-6610-4e10425e43f8",
-				"url": "htp://test.com/ui",
-				"route_key": "",
+				"url": "htp://127.0.0.1:8090/index.php",
+				"route_key": "test",
 				"timeout": 5000,
 				"code": 500,
 				"check_code": false,
@@ -15,15 +15,6 @@
 		"is_need_token": true,
 		"mode": "topic",
 		"name": "aa",
-		"token": "adadjhk",
-		"comment": "adads"
-	},
-	{
-		"consumers": [],
-		"durable": true,
-		"is_need_token": true,
-		"mode": "topic",
-		"name": "aaadjajd",
 		"token": "adadjhk",
 		"comment": "adads"
 	}
