@@ -26,11 +26,11 @@ func (wmq *Wmq) Run()  {
 // before init config
 func (wmq *Wmq) beforeInit() {
 	container.Ctx.InitConfig()
-	if err := container.Ctx.InitQMessage(); err != nil {
+	if err := container.Ctx.LoadMessageFile(); err != nil {
 		panic(err.Error())
 	}
-	container.Ctx.InitMQPools()
-	if err := container.Ctx.InitRabbitMQ(); err != nil {
+	container.Ctx.InitRabbitMQPools()
+	if err := container.Ctx.InitExchanges(); err != nil {
 		panic(err.Error())
 	}
 	container.Ctx.InitConsumer()

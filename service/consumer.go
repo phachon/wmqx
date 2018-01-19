@@ -58,9 +58,21 @@ func (this *ConsumerService) Add(ctx *fasthttp.RequestCtx) {
 		this.jsonError(ctx, err.Error(), nil)
 		return
 	}
-	
-	container.Ctx.ResetQMessage()
-	
+	// declare queue and bind consumer to exchange
+	err = container.Ctx.DeclareConsumer(exchangeName, uuId.String())
+	if err != nil {
+		this.jsonError(ctx, err.Error(), nil)
+		return
+	}
+	// reset message.json file
+	err = container.Ctx.ResetMessageFile()
+	if err != nil {
+		this.jsonError(ctx, err.Error(), nil)
+		return
+	}
+	// send consumer work sign
+	//container.Ctx.SendConsumerSign("insert")
+
 	this.jsonSuccess(ctx, "ok", nil)
 }
 
@@ -106,9 +118,21 @@ func (this *ConsumerService) Update(ctx *fasthttp.RequestCtx) {
 		this.jsonError(ctx, err.Error(), nil)
 		return
 	}
-	
-	container.Ctx.ResetQMessage()
-	
+	// declare queue and bind consumer to exchange
+	err = container.Ctx.DeclareConsumer(exchangeName, consumerId)
+	if err != nil {
+		this.jsonError(ctx, err.Error(), nil)
+		return
+	}
+	// reset message.json file
+	err = container.Ctx.ResetMessageFile()
+	if err != nil {
+		this.jsonError(ctx, err.Error(), nil)
+		return
+	}
+	// send consumer work sign
+	//container.Ctx.SendConsumerSign("update")
+
 	this.jsonSuccess(ctx, "ok", nil)
 }
 
@@ -129,10 +153,23 @@ func (this *ConsumerService) Delete(ctx *fasthttp.RequestCtx) {
 	}
 	
 	// delete a consumer to QMessage
-	container.Ctx.QMessage.DeleteConsumerByNameAndId(exchangeName, consumerId)
-	
-	container.Ctx.ResetQMessage()
-	
+	err := container.Ctx.QMessage.DeleteConsumerByNameAndId(exchangeName, consumerId)
+	err = container.Ctx.ResetMessageFile()
+	if err != nil {
+		this.jsonError(ctx, err.Error(), nil)
+		return
+	}
+	// No need to be deleted queue, queue no consumer is auto delete
+
+	// reset message.json file
+	err = container.Ctx.ResetMessageFile()
+	if err != nil {
+		this.jsonError(ctx, err.Error(), nil)
+		return
+	}
+
+	//container.Ctx.SendConsumerSign("delete")
+
 	this.jsonSuccess(ctx, "ok", nil)
 }
 

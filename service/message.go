@@ -52,11 +52,19 @@ func (this *MessageService) Add(ctx *fasthttp.RequestCtx) {
 
 	err := container.Ctx.QMessage.AddMessage(message)
 	if err != nil {
+		this.jsonError(ctx, ""+err.Error(), nil)
+		return
+	}
+	err = container.Ctx.DeclareExchange(name)
+	if err != nil {
 		this.jsonError(ctx, err.Error(), nil)
 		return
 	}
-	container.Ctx.ResetQMessage()
-	container.Ctx.InitRabbitMQ()
+	err = container.Ctx.ResetMessageFile()
+	if err != nil {
+		this.jsonError(ctx, err.Error(), nil)
+		return
+	}
 
 	this.jsonSuccess(ctx, "ok", nil)
 }
@@ -100,7 +108,16 @@ func (this *MessageService) Update(ctx *fasthttp.RequestCtx) {
 		this.jsonError(ctx, err.Error(), nil)
 		return
 	}
-	container.Ctx.ResetQMessage()
+	err = container.Ctx.DeclareExchange(name)
+	if err != nil {
+		this.jsonError(ctx, err.Error(), nil)
+		return
+	}
+	err = container.Ctx.ResetMessageFile()
+	if err != nil {
+		this.jsonError(ctx, err.Error(), nil)
+		return
+	}
 
 	this.jsonSuccess(ctx, "ok", nil)
 }
@@ -120,8 +137,21 @@ func (this *MessageService) Delete(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	container.Ctx.QMessage.DeleteMessageByName(name)
-	container.Ctx.ResetQMessage()
+	err := container.Ctx.QMessage.DeleteMessageByName(name)
+	if err != nil {
+		this.jsonError(ctx, err.Error(), nil)
+		return
+	}
+	err = container.Ctx.DeleteExchange(name)
+	if err != nil {
+		this.jsonError(ctx, err.Error(), nil)
+		return
+	}
+	err = container.Ctx.ResetMessageFile()
+	if err != nil {
+		this.jsonError(ctx, err.Error(), nil)
+		return
+	}
 
 	this.jsonSuccess(ctx, "ok", nil)
 }
