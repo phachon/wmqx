@@ -183,7 +183,6 @@ func (this *MessageController) Status(ctx *fasthttp.RequestCtx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}
-
 	name := this.GetCtxString(ctx, "name")
 	if name == "" {
 		this.jsonError(ctx, "param require!", nil)
@@ -221,4 +220,57 @@ func (this *MessageController) Status(ctx *fasthttp.RequestCtx) {
 	}
 
 	this.jsonSuccess(ctx, "success", data)
+}
+
+// get all message list
+func (this *MessageController) List(ctx *fasthttp.RequestCtx) {
+	r := this.AccessToken(ctx)
+	if r != true {
+		this.jsonError(ctx, "token error", nil)
+		return
+	}
+
+	messages := container.Ctx.QMessage.GetMessages()
+
+	this.jsonSuccess(ctx, "success", messages)
+}
+
+// get message by name
+func (this *MessageController) GetMessageByName(ctx *fasthttp.RequestCtx) {
+	r := this.AccessToken(ctx)
+	if r != true {
+		this.jsonError(ctx, "token error", nil)
+		return
+	}
+
+	name := this.GetCtxString(ctx, "name")
+	if name == "" {
+		this.jsonError(ctx, "param require!", nil)
+		return
+	}
+	msg, err := container.Ctx.QMessage.GetMessageByName(name)
+	if err != nil {
+		this.jsonError(ctx, err.Error(), nil)
+		return
+	}
+
+	this.jsonSuccess(ctx, "success", msg)
+}
+
+// get consumer by name
+func (this *MessageController) GetConsumerByName(ctx *fasthttp.RequestCtx) {
+	r := this.AccessToken(ctx)
+	if r != true {
+		this.jsonError(ctx, "token error", nil)
+		return
+	}
+
+	name := this.GetCtxString(ctx, "name")
+	if name == "" {
+		this.jsonError(ctx, "param require!", nil)
+		return
+	}
+	consumers := container.Ctx.QMessage.GetConsumersByMessageName(name)
+
+	this.jsonSuccess(ctx, "success", consumers)
 }

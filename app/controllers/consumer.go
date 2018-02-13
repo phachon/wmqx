@@ -233,3 +233,32 @@ func (this *ConsumerController) Status(ctx *fasthttp.RequestCtx) {
 
 	this.jsonSuccess(ctx, "success", data)
 }
+
+// get consumer by id
+func (this *ConsumerController) GetConsumerById(ctx *fasthttp.RequestCtx) {
+
+	r := this.AccessToken(ctx)
+	if r != true {
+		this.jsonError(ctx, "token error", nil)
+		return
+	}
+
+	name := this.GetCtxString(ctx, "name")
+	consumerId := this.GetCtxString(ctx, "consumer_id")
+	if name == "" {
+		this.jsonError(ctx, "param require!", nil)
+		return
+	}
+	if consumerId == "" {
+		this.jsonError(ctx, "param require!", nil)
+		return
+	}
+
+	consumer, err := container.Ctx.QMessage.GetConsumerById(name, consumerId)
+	if err != nil {
+		this.jsonError(ctx, err.Error(), nil)
+		return
+	}
+
+	this.jsonSuccess(ctx, "success", consumer)
+}

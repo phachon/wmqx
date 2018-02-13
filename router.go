@@ -24,6 +24,9 @@ func (r *Router) Api() *fasthttprouter.Router {
 	router.GET("/message/update", messageController.Update)
 	router.GET("/message/delete", messageController.Delete)
 	router.GET("/message/status", messageController.Status)
+	router.GET("/message/list", messageController.List)
+	router.GET("/message/getMessageByName", messageController.GetMessageByName)
+	router.GET("/message/getConsumerByName", messageController.GetConsumerByName)
 
 	// consumer router
 	consumerController := controllers.NewConsumerController()
@@ -31,12 +34,12 @@ func (r *Router) Api() *fasthttprouter.Router {
 	router.GET("/consumer/update", consumerController.Update)
 	router.GET("/consumer/delete", consumerController.Delete)
 	router.GET("/consumer/status", consumerController.Status)
+	router.GET("/consumer/getConsumerById", consumerController.GetConsumerById)
 
 	// system router
 	systemController := controllers.NewSystemController()
-	router.GET("/reload", systemController.Reload)
-	router.GET("/restart", systemController.Restart)
-	router.GET("/config", systemController.Config)
+	router.GET("/system/reload", systemController.Reload)
+	router.GET("/system/restart", systemController.Restart)
 
 	// log router
 	logController := controllers.NewLogController()

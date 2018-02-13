@@ -13,6 +13,41 @@ type MqService struct {
 
 }
 
+// reload RabbitMQ all exchanges
+func (s *MqService) ReloadExchanges() error {
+	rabbitMq, err := container.Ctx.RabbitMQPools.GetMQ()
+	if err != nil {
+		return errors.New("rabbitmq pools faild: " + err.Error())
+	}
+	defer container.Ctx.RabbitMQPools.Recover(rabbitMq)
+
+	container.Ctx.QMessage.Lock.Lock()
+	defer container.Ctx.QMessage.Lock.Unlock()
+
+	messages := container.Ctx.QMessage.Messages
+	for _, msg := range messages {
+		// declare exchange
+		err := rabbitMq.DeclareExchange(msg.Name, msg.Mode, msg.Durable)
+		if err != nil {
+			return errors.New("Declare exchange faild: "+err.Error())
+		}
+		// declare queue
+		for _, consumer := range msg.Consumers {
+			consumerKey := container.Ctx.GetConsumerKey(msg.Name, consumer.ID)
+			err := rabbitMq.DeclareQueue(consumerKey, msg.Durable)
+			if err != nil {
+				return errors.New("Declare queue faild: "+err.Error())
+			}
+			// bind queue to exchange
+			err = rabbitMq.BindQueueToExchange(consumerKey, msg.Name, consumer.RouteKey)
+			if err != nil {
+				return errors.New("Bind queue exchange fail: "+err.Error())
+			}
+		}
+	}
+	return nil
+}
+
 // declare a Exchange
 func (s *MqService) DeclareExchange(name string, mode string, durable bool) error {
 	rabbitMq, err := container.Ctx.RabbitMQPools.GetMQ()
@@ -88,4 +123,22 @@ func (s *MqService) DeclareConsumer(consumerId string, messageName string, consu
 		container.Worker.SendConsumerSign(container.Consumer_Action_Insert, consumerKey)
 	}
 	return nil
+}
+
+func (s *MqService) StopAllConsumer()  {
+
+	messages := container.Ctx.QMessage.GetMessages()
+	if len(messages) > 0 {
+		for _, message := range messages {
+			messageName := message.Name
+			consumers := message.Consumers
+			if len(consumers) > 0 {
+				for _, consumer := range consumers {
+					consumerKey := container.Ctx.GetConsumerKey(messageName, consumer.ID)
+					// stop consumer
+					container.Worker.SendConsumerSign(container.Consumer_Action_Delete, consumerKey)
+				}
+			}
+		}
+	}
 }
