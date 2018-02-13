@@ -12,8 +12,8 @@ type RabbitMQ struct {
 }
 
 // return a rabbitMQ object
-func NewRabbitMQ(uri string) (*RabbitMQ, error) {
-	conn, err := amqp.Dial(uri)
+func NewRabbitMQ(uri string, config amqp.Config) (*RabbitMQ, error) {
+	conn, err := amqp.DialConfig(uri, config)
 	if err != nil {
 		return &RabbitMQ{}, err
 	}

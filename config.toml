@@ -3,9 +3,7 @@ api = "0.0.0.0:3302"
 publish = "0.0.0.0:3303"
 
 [api]
-#disable or not api service
 disable = false
-#access api token
 token = "guest"
 
 [publish]
@@ -23,13 +21,14 @@ GoFailWait = 3
 DataFile = "message.json"
 
 [rabbitmq]
-host = "127.0.0.1"
+host = "192.168.30.131"
 port = 5672
-username = "guest"
-password = "guest"
+username = "test"
+password = "123456"
 vhost = "/"
-#the queue and exchange default prefix
-prefix = "wmq."
+heartbeat = 2
+connTimeout = 4
+prefix = "rmqc."
 
 [log]
 filename="log/comb.log"
