@@ -1,11 +1,8 @@
-package mq
+package message
 
 import (
 	"sync"
 	"errors"
-	"encoding/json"
-	"io"
-	"bytes"
 )
 
 type Message struct {
@@ -28,16 +25,71 @@ type Consumer struct {
 	Comment   string `json:"comment"`
 }
 
+type QMessageRecordFunc func() QMessageRecord
+
 type QMessage struct {
 	Lock *sync.Mutex
 	Messages []*Message
+	record QMessageRecord
 }
 
-func NewQMessage() *QMessage {
-	return &QMessage{
+type QMessageRecord interface {
+	Init(config *RecordConfig) error
+	Write([]*Message) error
+	Read() ([]*Message, error)
+	Clean() error
+}
+
+var records = make(map[string]QMessageRecordFunc)
+
+// Register QMessage record
+func Register(recordType string, record QMessageRecordFunc)  {
+	if records[recordType] != nil {
+		panic("rmqc: QMessage record type "+ recordType +" already registered!")
+	}
+	if record == nil {
+		panic("rmqc: QMessage record type "+ recordType +" is nil!")
+	}
+
+	records[recordType] = record
+}
+
+// New QMessage
+func NewQMessage(recordTypeName string, config *RecordConfig) (qm *QMessage, err error) {
+
+	recordType, ok := records[recordTypeName]
+	if ok == false {
+		return qm, errors.New("QMessage record type "+ recordTypeName +" not support!")
+	}
+	recordFun := recordType()
+	err = recordFun.Init(config)
+	if err != nil {
+		return
+	}
+	qm = &QMessage{
 		Lock: &sync.Mutex{},
 		Messages: []*Message{},
+		record: recordFun,
 	}
+	// load record to Messages
+	err = qm.LoadRecord()
+	if err != nil {
+		return
+	}
+	return
+}
+
+// check message name is exists
+func (qm *QMessage) IsExistsMessage(name string) bool {
+
+	isExists := false
+	for _, message := range qm.Messages {
+		if message.Name == name {
+			isExists = true
+			break
+		}
+	}
+	return isExists
 }
 
 // add a message
@@ -50,7 +102,8 @@ func (qm *QMessage) AddMessage(messageValue *Message) error {
 		}
 	}
 	qm.Messages = append(qm.Messages, messageValue)
-	return nil
+	err := qm.record.Write(qm.Messages)
+	return err
 }
 
 // update a message by name
@@ -60,6 +113,7 @@ func (qm *QMessage) UpdateMessageByName(name string, messageValue *Message) erro
 	if name != messageValue.Name {
 		return errors.New("message name error!")
 	}
+	isExist := false
 	for _, message := range qm.Messages {
 		if message.Name == name {
 			message.Durable = messageValue.Durable
@@ -67,10 +121,16 @@ func (qm *QMessage) UpdateMessageByName(name string, messageValue *Message) erro
 			message.Mode = messageValue.Mode
 			message.Token = messageValue.Token
 			message.Comment = messageValue.Comment
-			return nil
+			isExist = true
+			break
 		}
 	}
-	return errors.New("message not exist!")
+	if isExist == true {
+		err := qm.record.Write(qm.Messages)
+		return err
+	}else {
+		return errors.New("message not exist!")
+	}
 }
 
 // delete a message by name
@@ -84,7 +144,8 @@ func (qm *QMessage) DeleteMessageByName(name string) error {
 		}
 	}
 	qm.Messages = messages
-	return nil
+	err := qm.record.Write(qm.Messages)
+	return err
 }
 
 // get message by name
@@ -103,10 +164,31 @@ func (qm *QMessage) GetMessages() []*Message {
 }
 
 // delete all message
-func (qm *QMessage) ClearMessages() {
+func (qm *QMessage) ClearMessages() error {
 	qm.Lock.Lock()
 	defer qm.Lock.Unlock()
 	qm.Messages = []*Message{}
+	err := qm.record.Write(qm.Messages)
+	return err
+}
+
+// check message and consumerId is exist
+func (qm *QMessage) IsExistsMessageAndConsumerId(messageName string, consumerId string) bool {
+
+	isExist := false
+	isExist = qm.IsExistsMessage(messageName)
+	if isExist == false {
+		return isExist
+	}
+	for _, message := range qm.Messages {
+		for _, consumer := range message.Consumers {
+			if consumer.ID == consumerId {
+				isExist = true
+				break
+			}
+		}
+	}
+	return isExist
 }
 
 // add a consumer for message
@@ -121,7 +203,8 @@ func (qm *QMessage) AddConsumer(name string, consumerValue *Consumer) error {
 				}
 			}
 			message.Consumers = append(message.Consumers, consumerValue)
-			return nil
+			err := qm.record.Write(qm.Messages)
+			return err
 		}
 	}
 	return errors.New("message not exist!")
@@ -159,6 +242,7 @@ func (qm *QMessage) UpdateConsumerByName(name string, consumerVal *Consumer) err
 	if err != nil {
 		return err
 	}
+	isExist := false
 	for _, consumer := range message.Consumers {
 		if consumer.ID == consumerVal.ID {
 			consumer.URL = consumerVal.URL
@@ -167,10 +251,16 @@ func (qm *QMessage) UpdateConsumerByName(name string, consumerVal *Consumer) err
 			consumer.Code = consumerVal.Code
 			consumer.CheckCode = consumerVal.CheckCode
 			consumer.Comment = consumerVal.Comment
-			return nil
+			isExist = true
+			break
 		}
 	}
-	return errors.New("consumer id not exist!")
+	if isExist == true {
+		err := qm.record.Write(qm.Messages)
+		return err
+	}else {
+		return errors.New("consumer id not exist!")
+	}
 }
 
 // delete consumer by message name and consumer id
@@ -188,45 +278,25 @@ func (qm *QMessage) DeleteConsumerByNameAndId(name string, consumerId string) er
 		}
 	}
 	message.Consumers = consumers
-	return nil
+	err = qm.record.Write(qm.Messages)
+	return err
 }
 
-// write to ...
-func (qm *QMessage) WriteTo(write io.Writer, isFormat bool) error {
-	qm.Lock.Lock()
-	defer qm.Lock.Unlock()
-	messages := qm.Messages
-	messageByte, err := json.Marshal(messages)
-	if isFormat {
-		var out bytes.Buffer
-		err = json.Indent(&out, messageByte, "", "\t")
-		if err != nil {
-			return err
-		}
-		out.WriteTo(write)
-		return nil
-	}
-	_, err = write.Write(messageByte)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// read from ...
-func (qm *QMessage) ReadFrom(reader io.Reader) error {
+// update messages record
+func (qm *QMessage) UpdateRecord() (err error) {
 	qm.Lock.Lock()
 	defer qm.Lock.Unlock()
 
-	buf := make([]byte, 2048)
+	err = qm.record.Write(qm.Messages)
+	return
+}
 
-	n, err := reader.Read(buf)
-	if err != nil {
-		return err
-	}
-	data := buf[:n]
-	var messages []*Message
-	json.Unmarshal(data, &messages)
+// load record messages to QMessage
+func (qm *QMessage) LoadRecord() (err error) {
+	qm.Lock.Lock()
+	defer qm.Lock.Unlock()
+
+	messages, err := qm.record.Read()
 	qm.Messages = messages
-	return nil
+	return
 }

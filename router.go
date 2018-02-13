@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/buaazp/fasthttprouter"
-	"rmqc/service"
+	"rmqc/app/controllers"
 )
 
 type Router struct {
@@ -19,30 +19,30 @@ func (r *Router) Api() *fasthttprouter.Router {
 	router := fasthttprouter.New()
 
 	// message router
-	messageService := service.NewMessageService()
-	router.GET("/message/add", messageService.Add)
-	router.GET("/message/update", messageService.Update)
-	router.GET("/message/delete", messageService.Delete)
-	router.GET("/message/status", messageService.Status)
+	messageController := controllers.NewMessageController()
+	router.GET("/message/add", messageController.Add)
+	router.GET("/message/update", messageController.Update)
+	router.GET("/message/delete", messageController.Delete)
+	router.GET("/message/status", messageController.Status)
 
 	// consumer router
-	consumerService := service.NewConsumerService()
-	router.GET("/consumer/add", consumerService.Add)
-	router.GET("/consumer/update", consumerService.Update)
-	router.GET("/consumer/delete", consumerService.Delete)
-	router.GET("/consumer/status", consumerService.Status)
+	consumerController := controllers.NewConsumerController()
+	router.GET("/consumer/add", consumerController.Add)
+	router.GET("/consumer/update", consumerController.Update)
+	router.GET("/consumer/delete", consumerController.Delete)
+	router.GET("/consumer/status", consumerController.Status)
 
 	// system router
-	systemService := service.NewSystemService()
-	router.GET("/reload", systemService.Reload)
-	router.GET("/restart", systemService.Restart)
-	router.GET("/config", systemService.Config)
+	systemController := controllers.NewSystemController()
+	router.GET("/reload", systemController.Reload)
+	router.GET("/restart", systemController.Restart)
+	router.GET("/config", systemController.Config)
 
 	// log router
-	logService := service.NewLogService()
-	router.GET("/log", logService.Index)
-	router.GET("/log/file", logService.File)
-	router.GET("/log/list", logService.List)
+	logController := controllers.NewLogController()
+	router.GET("/log", logController.Index)
+	router.GET("/log/file", logController.File)
+	router.GET("/log/list", logController.List)
 
 	return router
 }
@@ -52,9 +52,9 @@ func (r *Router) Publish() *fasthttprouter.Router {
 	router := fasthttprouter.New()
 
 	// publish router
-	publishService := service.NewPublishService()
-	router.GET("/publish/:name", publishService.Publish)
-	router.POST("/publish/:name", publishService.Publish)
+	publishController := controllers.NewPublishController()
+	router.GET("/publish/:name", publishController.Publish)
+	router.POST("/publish/:name", publishController.Publish)
 
 	return router
 }

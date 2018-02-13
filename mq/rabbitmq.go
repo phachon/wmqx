@@ -2,6 +2,7 @@ package mq
 
 import (
 	"github.com/streadway/amqp"
+	"errors"
 )
 
 type RabbitMQ struct {
@@ -167,6 +168,22 @@ func (rq *RabbitMQ) Publish(exchange string, routeKey string, body string) error
 	}
 
 	return channel.Publish(exchange, routeKey, mandatory, immediate, msg)
+}
+
+// declare consumer
+func (rq *RabbitMQ) DeclareConsumer(consumerKey string, durable bool, messageName string, consumerRouteKey string) (err error) {
+
+	// declare queue
+	err = rq.DeclareQueue(consumerKey, durable)
+	if err != nil {
+		return errors.New("Declare queue faild: "+err.Error())
+	}
+	// bind queue to exchange
+	err = rq.BindQueueToExchange(consumerKey, messageName, consumerRouteKey)
+	if err != nil {
+		return errors.New("bind queue exchange fail: "+err.Error())
+	}
+	return
 }
 
 // consume
