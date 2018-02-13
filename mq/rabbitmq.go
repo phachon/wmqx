@@ -47,7 +47,7 @@ func (rq *RabbitMQ) DeclareExchange(name string, kind string, durable bool) erro
 	internal := false // Exchanges declared as `internal` do not accept accept publishings.
 	noWait := false  // When noWait is true, declare without waiting for a confirmation from the server.
 	//
-	maxRetryCount := 1
+	maxRetryCount := 5
 	retryCount := 0
 	RETRY:
 	err := channel.ExchangeDeclare(name, kind, durable, autoDelete, internal, noWait, nil)
@@ -91,7 +91,7 @@ func (rq *RabbitMQ) DeclareQueue(name string, durable bool) error {
 	exclusive := false //Exclusive queues are only accessible by the connection that declares them and will be deleted when the connection closes.
 	noWait := false // When noWait is true, declare without waiting for a confirmation from the server.
 
-	maxRetryCount := 1
+	maxRetryCount := 5
 	retryCount := 0
 	RETRY:
 	_, err := channel.QueueDeclare(name, durable, autoDelete, exclusive, noWait, nil)

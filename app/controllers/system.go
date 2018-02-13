@@ -5,6 +5,7 @@ import (
 	"rmqc/app/service"
 	"rmqc/app"
 	"rmqc/container"
+	"time"
 )
 
 type SystemController struct {
@@ -24,7 +25,7 @@ func (this *SystemController) Reload(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	app.Log.Info("Start reload all exchange")
+	app.Log.Info("Reload start")
 	err := service.NewMQ().ReloadExchanges()
 	if err != nil {
 		app.Log.Error("Reload error: "+err.Error())
@@ -44,9 +45,19 @@ func (this *SystemController) Restart(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	app.Log.Info("Start restart")
+	app.Log.Info("Restart start ")
 
 	service.NewMQ().StopAllConsumer()
+
+	// wait all consumer stop
+	for {
+		if len(container.Ctx.ConsumerProcess.ProcessMessages) != 0 {
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		app.Log.Info("Restart stop all consumer success!")
+		break
+	}
 
 	err := container.Ctx.InitExchanges()
 	if err != nil {
@@ -56,7 +67,7 @@ func (this *SystemController) Restart(ctx *fasthttp.RequestCtx) {
 	}
 	app.Log.Info("Restart init exchange success!")
 
-	app.Log.Info("Restart consumer success!")
+	app.Log.Info("Restart all consumer success!")
 
 	this.jsonSuccess(ctx, "success", nil)
 }
