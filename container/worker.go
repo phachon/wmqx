@@ -5,6 +5,7 @@ import (
 	"rmqc/app"
 	"rmqc/message"
 	"time"
+	"encoding/base64"
 )
 
 var Worker = NewWorker()
@@ -121,7 +122,26 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 			case d := <-delivery:
 				// update last_time
 				Ctx.ConsumerProcess.UpdateProcessByKey(processMessage.Key, time.Now().Unix())
-				app.Log.Info("Consumer "+processMessage.Key+" receive message: "+string(d.Body))
+
+				publishMessage := message.NewPublishMessage().JsonDecode(string(d.Body))
+				requestBody, err := base64.StdEncoding.DecodeString(publishMessage.Body)
+				if err != nil {
+					app.Log.Error(err.Error())
+					d.Ack(false)
+					continue
+				}
+				app.Log.Info("Consumer "+processMessage.Key+" receive message body: "+string(requestBody))
+
+				messageName, consumerId := Ctx.SplitConsumerKey(processMessage.Key)
+				consumer, err := Ctx.QMessage.GetConsumerById(messageName, consumerId)
+				if err != nil {
+					app.Log.Error(err.Error())
+					d.Ack(false)
+					continue
+				}
+				// todo request url
+				app.Log.Info("start request url:"+consumer.URL)
+
 				d.Ack(true)
 			case sign := <-processMessage.SignalChan:
 				app.Log.Info("Counsumer "+processMessage.Key+" receive stop sign")

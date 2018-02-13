@@ -2,6 +2,10 @@ package message
 
 import "encoding/json"
 
+func NewPublishMessage() *PublishMessage {
+	return &PublishMessage{}
+}
+
 type PublishMessage struct {
 	Header map[string]string `json:"header"`
 	Ip string `json:"ip"`
@@ -17,8 +21,8 @@ func (pmg *PublishMessage) JsonEncode(publishMsg *PublishMessage) (string, error
 }
 
 // json decode publish message
-func (pmg *PublishMessage) JsonDecode(publishMsg string) *PublishMessage {
-	var p *PublishMessage
-	json.Unmarshal([]byte(publishMsg), p)
+func (pmg *PublishMessage) JsonDecode(publishMsg string) PublishMessage {
+	var p PublishMessage
+	json.Unmarshal([]byte(publishMsg), &p)
 	return p
 }

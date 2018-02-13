@@ -4,6 +4,7 @@ import (
 	"rmqc/message"
 	"rmqc/pools"
 	"errors"
+	"strings"
 )
 
 var Ctx = NewContext()
@@ -34,7 +35,16 @@ func (ctx *Context) SetRabbitMQPools(n int)  {
 }
 
 func (ctx *Context) GetConsumerKey(messageName string, consumerId string) string {
-	return messageName +"-"+ consumerId
+	return messageName +"_"+ consumerId
+}
+
+func (ctx *Context) SplitConsumerKey(consumerKey string) (messageName string, consumerId string){
+	d := strings.Split(consumerKey, "_")
+	if len(d) == 2 {
+		return d[0], d[1]
+	}else {
+		return "", d[0]
+	}
 }
 
 // init RabbitMQ all exchanges
