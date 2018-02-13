@@ -12,7 +12,7 @@ func NewContext() *Context {
 	return &Context{
 		QMessage:&message.QMessage{},
 		RabbitMQPools: &pools.RabbitMQ{},
-		ConsumerProcess:message.NewConsumerProcess(),
+		ConsumerProcess: message.NewConsumerProcess(),
 	}
 }
 

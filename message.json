@@ -1,6 +1,16 @@
 [
 	{
-		"consumers": [],
+		"consumers": [
+			{
+				"id": "5fcbdbbd-85cd-4163-67cf-39dcea397b1b",
+				"url": "http://127.0.0.1/test.php",
+				"route_key": "",
+				"timeout": 2000,
+				"code": 200,
+				"check_code": true,
+				"comment": "测试的消费者"
+			}
+		],
 		"durable": true,
 		"is_need_token": true,
 		"mode": "topic",

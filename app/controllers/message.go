@@ -175,7 +175,50 @@ func (this *MessageController) Delete(ctx *fasthttp.RequestCtx) {
 	this.jsonSuccess(ctx, "success", nil)
 }
 
-// get message status
-func (messageController *MessageController) Status(ctx *fasthttp.RequestCtx) {
+// get message all consumer status
+func (this *MessageController) Status(ctx *fasthttp.RequestCtx) {
 
+	r := this.AccessToken(ctx)
+	if r != true {
+		this.jsonError(ctx, "token error", nil)
+		return
+	}
+
+	name := this.GetCtxString(ctx, "name")
+	if name == "" {
+		this.jsonError(ctx, "param require!", nil)
+		return
+	}
+
+	// check message is exists
+	ok := container.Ctx.QMessage.IsExistsMessage(name)
+	if ok == false {
+		this.jsonError(ctx, "message "+name+" not exist", nil)
+		return
+	}
+
+	data := []map[string]interface{}{}
+	consumers := container.Ctx.QMessage.GetConsumersByMessageName(name)
+
+	consumerProcess := container.Ctx.ConsumerProcess.ProcessMessages
+	if len(consumers) > 0 {
+		for _, consumer := range consumers {
+			item := map[string]interface{}{
+				"name": name,
+				"consumer_id": consumer.ID,
+				"status": 0,
+				"last_time": 0,
+			}
+			consumerKey := container.Ctx.GetConsumerKey(name, consumer.ID)
+			for _, process := range consumerProcess {
+				if process.Key == consumerKey {
+					item["status"] = 1
+					item["last_time"] = process.LastTime
+				}
+			}
+			data = append(data, item)
+		}
+	}
+
+	this.jsonSuccess(ctx, "success", data)
 }

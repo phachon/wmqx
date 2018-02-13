@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"rmqc/app"
 	"rmqc/message"
+	"time"
 )
 
 var Worker = NewWorker()
@@ -113,9 +114,13 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 		delivery, _ := channel.Consume(processMessage.Key, "", autoAck, exclusive, noLocal, noWait, nil)
 
 		app.Log.Info("Consumer "+processMessage.Key+" process start, wait message...")
+		// update last_time
+		Ctx.ConsumerProcess.UpdateProcessByKey(processMessage.Key, time.Now().Unix())
 		for {
 			select {
 			case d := <-delivery:
+				// update last_time
+				Ctx.ConsumerProcess.UpdateProcessByKey(processMessage.Key, time.Now().Unix())
 				app.Log.Info("Consumer "+processMessage.Key+" receive message: "+string(d.Body))
 				d.Ack(true)
 			case sign := <-processMessage.SignalChan:
