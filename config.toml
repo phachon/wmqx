@@ -30,6 +30,11 @@ heartbeat = 2
 connTimeout = 4
 prefix = "rmqc."
 
+[message]
+record_type="file"
+filename="./message.json"
+jsonBeautify=true
+
 [log]
 filename="log/comb.log"
 maxSize=1048576

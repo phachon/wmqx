@@ -22,18 +22,23 @@ func main()  {
 
 // init Ctx QMessage
 func initQMessage() {
+
+	recordType := app.Conf.GetString("message.record_type")
+	filename := app.Conf.GetString("message.filename")
+	jsonBeautify := app.Conf.GetBool("message.jsonBeautify")
+
 	fileConfig := &message.RecordFileConfig{
-		Filename: "message.json",
-		JsonBeautify: true,
+		Filename: filename,
+		JsonBeautify: jsonBeautify,
 	}
-	qm, err := message.NewQMessage("file", message.NewRecordConfigFile(fileConfig))
+	qm, err := message.NewQMessage(recordType, message.NewRecordConfigFile(fileConfig))
 	if err != nil {
 		app.Log.Error(err.Error())
 		os.Exit(1)
 	}
 	container.Ctx.QMessage = qm
 
-	app.Log.Info("Init QMessage file success!")
+	app.Log.Info("Init QMessage "+recordType+ "success!")
 }
 
 // init Ctx RabbitMq pools
