@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"strings"
 	"rmqc/container"
-	"comb/app"
+	"rmqc/app"
 	"rmqc/message"
 	"rmqc/app/service"
 )
