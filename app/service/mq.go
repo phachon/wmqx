@@ -125,6 +125,7 @@ func (s *MqService) DeclareConsumer(consumerId string, messageName string, consu
 	return nil
 }
 
+// stop all consumer
 func (s *MqService) StopAllConsumer()  {
 
 	messages := container.Ctx.QMessage.GetMessages()
@@ -141,4 +142,23 @@ func (s *MqService) StopAllConsumer()  {
 			}
 		}
 	}
+}
+
+// publish message to mq
+func (MqService *MqService) Publish(body string, exchangeName string, token string, routeKey string) (err error) {
+	qMessage, err := container.Ctx.QMessage.GetMessageByName(exchangeName)
+	if err != nil {
+		return
+	}
+	if qMessage.IsNeedToken && qMessage.Token != token {
+		return errors.New("token error")
+	}
+
+	rabbitMq, err := container.Ctx.RabbitMQPools.GetMQ()
+	if err != nil {
+		return errors.New("rabbitmq pools faild: "+err.Error())
+	}
+	defer container.Ctx.RabbitMQPools.Recover(rabbitMq)
+
+	return rabbitMq.Publish(exchangeName, routeKey, body)
 }
