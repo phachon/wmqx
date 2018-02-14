@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"rmqc/container"
+	"wmqx/container"
 	"github.com/valyala/fasthttp"
-	"rmqc/message"
-	"rmqc/app/service"
-	"rmqc/app"
+	"wmqx/message"
+	"wmqx/app/service"
+	"wmqx/app"
 )
 
 type MessageController struct {

@@ -3,10 +3,10 @@ package controllers
 import (
 	"github.com/valyala/fasthttp"
 	"github.com/nu7hatch/gouuid"
-	"rmqc/container"
-	"rmqc/message"
-	"rmqc/app/service"
-	"rmqc/app"
+	"wmqx/container"
+	"wmqx/message"
+	"wmqx/app/service"
+	"wmqx/app"
 )
 
 type ConsumerController struct {

@@ -45,10 +45,10 @@ var records = make(map[string]QMessageRecordFunc)
 // Register QMessage record
 func Register(recordType string, record QMessageRecordFunc)  {
 	if records[recordType] != nil {
-		panic("rmqc: QMessage record type "+ recordType +" already registered!")
+		panic("wmqx: QMessage record type "+ recordType +" already registered!")
 	}
 	if record == nil {
-		panic("rmqc: QMessage record type "+ recordType +" is nil!")
+		panic("wmqx: QMessage record type "+ recordType +" is nil!")
 	}
 
 	records[recordType] = record

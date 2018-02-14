@@ -1,7 +1,7 @@
 package service
 
 import (
-	"rmqc/container"
+	"wmqx/container"
 	"errors"
 )
 

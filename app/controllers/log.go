@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"github.com/valyala/fasthttp"
-	"rmqc/app"
+	"wmqx/app"
 	"runtime"
-	"rmqc/utils"
+	"wmqx/utils"
 	"fmt"
 	"os/exec"
 	"bytes"

@@ -4,10 +4,10 @@ import (
 	"github.com/valyala/fasthttp"
 	"encoding/base64"
 	"strings"
-	"rmqc/container"
-	"rmqc/app"
-	"rmqc/message"
-	"rmqc/app/service"
+	"wmqx/container"
+	"wmqx/app"
+	"wmqx/message"
+	"wmqx/app/service"
 )
 
 type PublishController struct {

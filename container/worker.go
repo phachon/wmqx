@@ -2,8 +2,8 @@ package container
 
 import (
 	"fmt"
-	"rmqc/app"
-	"rmqc/message"
+	"wmqx/app"
+	"wmqx/message"
 	"time"
 	"encoding/base64"
 )

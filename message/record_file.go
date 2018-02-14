@@ -4,7 +4,7 @@ import (
 	"errors"
 	"encoding/json"
 	"bytes"
-	"rmqc/utils"
+	"wmqx/utils"
 )
 
 const QMessage_Record_Type = "file"

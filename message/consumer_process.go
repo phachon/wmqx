@@ -4,7 +4,7 @@ import (
 	"sync"
 	"errors"
 	"time"
-	"rmqc/app"
+	"wmqx/app"
 )
 
 func NewConsumerProcess() *ConsumerProcess {

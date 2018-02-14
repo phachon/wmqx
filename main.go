@@ -1,15 +1,15 @@
 package main
 
 import (
-	"rmqc/app"
+	"wmqx/app"
 	"github.com/valyala/fasthttp"
 	"os"
 	"fmt"
-	"rmqc/container"
-	"rmqc/message"
+	"wmqx/container"
+	"wmqx/message"
 )
 
-// RMQC RabbitMQ Callback
+// wmqx RabbitMQ Callback
 
 func main()  {
 	initQMessage()

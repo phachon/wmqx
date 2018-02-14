@@ -1,8 +1,8 @@
 package container
 
 import (
-	"rmqc/message"
-	"rmqc/pools"
+	"wmqx/message"
+	"wmqx/pools"
 	"errors"
 	"strings"
 )

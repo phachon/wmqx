@@ -2,9 +2,9 @@ package pools
 
 import (
 	"github.com/jolestar/go-commons-pool"
-	"rmqc/mq"
+	"wmqx/mq"
 	"fmt"
-	"rmqc/app"
+	"wmqx/app"
 	"github.com/streadway/amqp"
 	"net"
 	"time"

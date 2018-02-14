@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/buaazp/fasthttprouter"
-	"rmqc/app/controllers"
+	"wmqx/app/controllers"
 )
 
 type Router struct {

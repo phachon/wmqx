@@ -4,7 +4,7 @@ import (
 	"github.com/valyala/fasthttp"
 	"encoding/json"
 	"strconv"
-	"rmqc/app"
+	"wmqx/app"
 )
 
 type BaseController struct {

@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"github.com/valyala/fasthttp"
-	"rmqc/app/service"
-	"rmqc/app"
-	"rmqc/container"
+	"wmqx/app/service"
+	"wmqx/app"
+	"wmqx/container"
 	"time"
 )
 
@@ -17,7 +17,7 @@ func NewSystemController() *SystemController {
 	return &SystemController{}
 }
 
-// reload rmqc
+// reload wmqx
 func (this *SystemController) Reload(ctx *fasthttp.RequestCtx) {
 	r := this.AccessToken(ctx)
 	if r != true {
@@ -37,7 +37,7 @@ func (this *SystemController) Reload(ctx *fasthttp.RequestCtx) {
 	this.jsonSuccess(ctx, "success", nil)
 }
 
-// restart rmqc
+// restart wmqx
 func (this *SystemController) Restart(ctx *fasthttp.RequestCtx) {
 	r := this.AccessToken(ctx)
 	if r != true {
