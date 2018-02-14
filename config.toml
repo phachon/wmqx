@@ -36,7 +36,7 @@ filename="./message.json"
 jsonBeautify=true
 
 [log]
-filename="log/comb.log"
+filename="log/rmqc.log"
 maxSize=1048576
 maxLine=1000000
 dateSlice="d"

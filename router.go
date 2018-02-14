@@ -43,9 +43,10 @@ func (r *Router) Api() *fasthttprouter.Router {
 
 	// log router
 	logController := controllers.NewLogController()
-	router.GET("/log", logController.Index)
-	router.GET("/log/file", logController.File)
+	router.GET("/log/index", logController.Index)
+	router.GET("/log/search", logController.Search)
 	router.GET("/log/list", logController.List)
+	router.GET("/log/download", logController.Download)
 
 	return router
 }

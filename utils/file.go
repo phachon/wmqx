@@ -3,6 +3,8 @@ package utils
 import (
 	"os"
 	"io/ioutil"
+	"strings"
+	"path/filepath"
 )
 
 func NewFile() *File {
@@ -53,4 +55,23 @@ func (f *File) CreateFile(filename string) error {
 	newFile, err := os.Create(filename)
 	defer newFile.Close()
 	return err
+}
+
+// get dir all files
+func (f *File) WalkDir(dirPth, suffix string) (files []string, err error) {
+	files = make([]string, 0, 30)
+	suffix = strings.ToUpper(suffix)
+	err = filepath.Walk(dirPth, func(filename string, fi os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if fi.IsDir() {
+			return nil
+		}
+		if strings.HasSuffix(strings.ToUpper(fi.Name()), suffix) {
+			files = append(files, filename)
+		}
+		return nil
+	})
+	return files, err
 }
