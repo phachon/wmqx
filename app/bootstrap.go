@@ -5,8 +5,8 @@ import (
 	"os"
 	"flag"
 	"github.com/phachon/go-logger"
-	"log"
 	"strings"
+	"fmt"
 )
 
 // app bootstrap init
@@ -16,19 +16,42 @@ var (
 )
 
 var (
+	AppVersion = "v1.0"
+
+	Author = "phachon"
+
+	Address = "https://github.com/phachon"
+
 	RootPath = ""
+
 	AppPath = ""
+
 	Conf = viper.New()
+
 	Log = go_logger.NewLogger()
 )
 
 // 启动初始化
 func init()  {
-
+	initPoster()
 	initFlag()
 	initPath()
 	initConfig()
 	initLog()
+}
+
+// print
+func initPoster() {
+	fmt.Printf(`
+__        __  __  __    ___   __  __
+\ \      / / |  \/  |  / _ \  \ \/ /
+ \ \ /\ / /  | |\/| | | | | |  \  /
+  \ V  V /   | |  | | | |_| |  /  \
+   \_/\_/    |_|  |_|  \__\_\ /_/\_\
+
+ Version: %s
+ Author : %s
+ Github : %s`+"\r\n"+"\r\n", AppVersion, Author, Address)
 }
 
 // init flag
@@ -46,7 +69,7 @@ func initPath() {
 func initConfig()  {
 
 	if *flagConf == "" {
-		log.Println("config file not found!")
+		Log.Error("config file not found!")
 		os.Exit(1)
 	}
 
@@ -54,13 +77,13 @@ func initConfig()  {
 	Conf.SetConfigFile(*flagConf)
 	err := Conf.ReadInConfig()
 	if err != nil {
-		log.Println("Fatal error config file: "+err.Error())
+		Log.Error("Fatal error config file: "+err.Error())
 		os.Exit(1)
 	}
 
 	file := Conf.ConfigFileUsed()
 	if(file != "") {
-		log.Println("Use config file: " + file)
+		Log.Info("Use config file: " + file)
 	}
 }
 
@@ -69,7 +92,7 @@ func initLog() {
 
 	Log.Detach("console")
 	consoleConfig := &go_logger.ConsoleConfig{
-		Color: true, // 显示颜色
+		Color: true, // text show color
 	}
 	Log.Attach("console", go_logger.NewConfigConsole(consoleConfig))
 

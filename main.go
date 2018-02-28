@@ -9,7 +9,7 @@ import (
 	"wmqx/message"
 )
 
-// wmqx RabbitMQ Callback
+// WMQX RabbitMQ Callback
 
 func main()  {
 	initQMessage()
@@ -38,7 +38,7 @@ func initQMessage() {
 	}
 	container.Ctx.QMessage = qm
 
-	app.Log.Info("Init QMessage "+recordType+ "success!")
+	app.Log.Info("Init QMessage "+recordType+ " success!")
 }
 
 // init Ctx RabbitMq pools
