@@ -5,7 +5,7 @@ import (
 	"wmqx/app"
 	"wmqx/message"
 	"time"
-	"encoding/base64"
+	"strconv"
 )
 
 var Worker = NewWorker()
@@ -95,7 +95,12 @@ func (w *worker) Consumer() {
 func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMessage) {
 
 	go func(processMessage *message.ConsumerProcessMessage) {
+		rabbitMq, _ := Ctx.RabbitMQPools.GetMQ()
+		channel, _ := rabbitMq.Conn.Channel()
+
 		defer func() {
+			channel.Close()
+			Ctx.RabbitMQPools.Recover(rabbitMq)
 			e := recover()
 			if e != nil {
 				fmt.Printf("go runtime error: %v", e)
@@ -103,10 +108,6 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 			// ack consumer process exit
 			processMessage.ExitAck<-true
 		}()
-		rabbitMq, _ := Ctx.RabbitMQPools.GetMQ()
-		defer Ctx.RabbitMQPools.Recover(rabbitMq)
-		channel, _ := rabbitMq.Conn.Channel()
-		defer channel.Close()
 
 		autoAck := false
 		exclusive := false
@@ -122,27 +123,23 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 			case d := <-delivery:
 				// update last_time
 				Ctx.ConsumerProcess.UpdateProcessByKey(processMessage.Key, time.Now().Unix())
-
-				publishMessage := message.NewPublishMessage().JsonDecode(string(d.Body))
-				requestBody, err := base64.StdEncoding.DecodeString(publishMessage.Body)
+				// decode publish message
+				publishMessage, err := message.NewPublishMessage().JsonDecode(string(d.Body))
 				if err != nil {
-					app.Log.Error(err.Error())
-					d.Ack(false)
+					app.Log.Error(("Consumer "+processMessage.Key+" decode publish message error: "+err.Error()))
+					d.Nack(false, true)
 					continue
 				}
-				app.Log.Info("Consumer "+processMessage.Key+" receive message body: "+string(requestBody))
-
-				messageName, consumerId := Ctx.SplitConsumerKey(processMessage.Key)
-				consumer, err := Ctx.QMessage.GetConsumerById(messageName, consumerId)
+				app.Log.Info("Consumer "+processMessage.Key+" receive message body: "+string(publishMessage.Body))
+				// request consumer url
+				resBody, code, err := Ctx.RequestConsumer(processMessage.Key, publishMessage)
 				if err != nil {
-					app.Log.Error(err.Error())
-					d.Ack(false)
+					app.Log.Error(("Consumer "+processMessage.Key+" request url failed: "+err.Error()))
+					d.Nack(false, true)
 					continue
 				}
-				// todo request url
-				app.Log.Info("start request url:"+consumer.URL)
-
-				d.Ack(true)
+				app.Log.Info("Consumer "+processMessage.Key+" request url success, response code: "+strconv.Itoa(code)+", body: "+resBody)
+				d.Ack(false)
 			case sign := <-processMessage.SignalChan:
 				app.Log.Info("Counsumer "+processMessage.Key+" receive stop sign")
 				if sign == message.Consumer_Sign_Stop {

@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"github.com/valyala/fasthttp"
-	"encoding/base64"
 	"strings"
 	"wmqx/container"
 	"wmqx/app"
@@ -58,16 +57,13 @@ func (this *PublishController) Publish(ctx *fasthttp.RequestCtx) {
 		}
 	})
 
-	body := base64.StdEncoding.EncodeToString(bodyByte)
-
 	publishMsg := &message.PublishMessage{
 		Header:headerMap,
 		Ip: ip,
-		Body: body,
+		BodyByte: bodyByte,
 		Method: method,
 		Args: queryString,
 	}
-
 	publishJson, err := publishMsg.JsonEncode(publishMsg)
 	if err != nil {
 		this.jsonError(ctx, err.Error(), nil)

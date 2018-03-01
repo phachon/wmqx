@@ -41,10 +41,15 @@ func initQMessage() {
 	app.Log.Info("Init QMessage "+recordType+ " success!")
 }
 
-// init Ctx RabbitMq pools
+// init Ctx RabbitMq pools and check rabbitMQ conn
 func initRabbitMQPools() {
 	container.Ctx.SetRabbitMQPools(20)
-
+	mq, err := container.Ctx.RabbitMQPools.GetMQ()
+	defer container.Ctx.RabbitMQPools.Recover(mq)
+	if err != nil {
+		app.Log.Info("Init Rabbitmq pools falied: "+err.Error())
+		os.Exit(1)
+	}
 	app.Log.Info("Init Rabbitmq pools success!")
 }
 

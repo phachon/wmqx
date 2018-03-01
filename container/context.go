@@ -5,6 +5,11 @@ import (
 	"wmqx/pools"
 	"errors"
 	"strings"
+	"net/http"
+	"wmqx/app"
+	"time"
+	"io/ioutil"
+	"strconv"
 )
 
 var Ctx = NewContext()
@@ -29,15 +34,18 @@ type Context struct {
 	ConsumerProcess *message.ConsumerProcess
 }
 
+// set RabbitMQ pools number and init
 func (ctx *Context) SetRabbitMQPools(n int)  {
 	ctx.RabbitMQPools = pools.NewRabbitMQPools()
 	ctx.RabbitMQPools.Init(n)
 }
 
+// get consumerKey by messageName and consumerId
 func (ctx *Context) GetConsumerKey(messageName string, consumerId string) string {
 	return messageName +"_"+ consumerId
 }
 
+// split consumerKey
 func (ctx *Context) SplitConsumerKey(consumerKey string) (messageName string, consumerId string){
 	d := strings.Split(consumerKey, "_")
 	if len(d) == 2 {
@@ -81,4 +89,67 @@ func (ctx *Context) InitExchanges() error {
 		}
 	}
 	return nil
+}
+
+// request consumer url by consumerKey
+func (ctx *Context) RequestConsumer(consumerKey string, publishMessage message.PublishMessage) (resBody string, respCode int, err error) {
+
+	// get consumer info
+	messageName, consumerId := ctx.SplitConsumerKey(consumerKey)
+	consumer, err := ctx.QMessage.GetConsumerById(messageName, consumerId)
+	if err != nil {
+		return
+	}
+
+	url := consumer.URL
+	timeout := consumer.Timeout
+	code := consumer.Code
+	checkCode := consumer.CheckCode
+	method := publishMessage.Method
+	body := publishMessage.Body
+	args := publishMessage.Args
+	ip := publishMessage.Ip
+	headers := publishMessage.Header
+	if !strings.Contains(url, "?") {
+		url += "?"
+	}
+	if args != "" {
+		url += args
+	}
+	var req *http.Request
+	if method == "POST" {
+		req, err = http.NewRequest("POST", url, strings.NewReader(body))
+	}else if method == "GET" {
+		req, err = http.NewRequest("GET", url, nil)
+	}
+	if err != nil {
+		return
+	}
+	req.Header.Set(app.Conf.GetString("publish.RealIpHeader"), ip)
+	req.Header.Set("User-Agent", "WMQX version" + app.AppVersion + " - https://github.com/phachon/wmqx")
+	if (headers != nil) && (len(headers) > 0) {
+		for key, value := range headers {
+			req.Header.Set(key, value)
+		}
+	}
+
+	client := &http.Client{}
+	client.Timeout = time.Duration(time.Duration(timeout) * time.Millisecond)
+	resp, err := client.Do(req)
+	if err != nil {
+		return
+	}
+	respCode = resp.StatusCode
+	defer resp.Body.Close()
+
+	bodyByte, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	if checkCode && (code != float64(respCode)) {
+		err = errors.New("response code error: "+strconv.Itoa(respCode))
+		return
+	}
+
+	return string(bodyByte), respCode, nil
 }
