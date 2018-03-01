@@ -3,7 +3,7 @@
 		"consumers": [
 			{
 				"id": "5fcbdbbd-85cd-4163-67cf-39dcea397b1b",
-				"url": "http://127.0.0.1/test.php",
+				"url": "http://127.0.0.1:8090/index.php",
 				"route_key": "test",
 				"timeout": 2000,
 				"code": 200,

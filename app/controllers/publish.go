@@ -27,7 +27,7 @@ func (this *PublishController) Publish(ctx *fasthttp.RequestCtx) {
 	routeKey := string(ctx.Request.Header.Peek("RouteKey"))
 	method := strings.ToLower(string(ctx.Request.Header.Method()))
 	bodyByte := ctx.Request.Body()
-	ip := string([]byte(ctx.RemoteIP()))
+	ip := ctx.RemoteIP().String()
 
 	qMessage, err := container.Ctx.QMessage.GetMessageByName(exchangeName)
 	if err != nil {

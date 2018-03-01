@@ -105,7 +105,7 @@ func (ctx *Context) RequestConsumerUrl(consumerKey string, publishMessage messag
 	timeout := consumer.Timeout
 	code := consumer.Code
 	checkCode := consumer.CheckCode
-	method := publishMessage.Method
+	method := strings.ToUpper(publishMessage.Method)
 	body := publishMessage.Body
 	args := publishMessage.Args
 	ip := publishMessage.Ip
