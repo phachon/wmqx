@@ -44,7 +44,7 @@ func (w *worker) Consumer() {
 		defer func() {
 			e := recover()
 			if e != nil {
-				fmt.Printf("go runtime error : %v", e)
+				fmt.Printf("%v", e)
 			}
 		}()
 
@@ -103,7 +103,7 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 			Ctx.RabbitMQPools.Recover(rabbitMq)
 			e := recover()
 			if e != nil {
-				fmt.Printf("go runtime error: %v", e)
+				fmt.Printf("%v", e)
 			}
 			// ack consumer process exit
 			processMessage.ExitAck<-true
@@ -126,15 +126,17 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 				// decode publish message
 				publishMessage, err := message.NewPublishMessage().JsonDecode(string(d.Body))
 				if err != nil {
-					app.Log.Error(("Consumer "+processMessage.Key+" decode publish message error: "+err.Error()))
+					app.Log.Error("Consumer "+processMessage.Key+" decode publish message error: "+err.Error())
+					time.Sleep(1 * time.Second)
 					d.Nack(false, true)
 					continue
 				}
 				app.Log.Info("Consumer "+processMessage.Key+" receive message body: "+string(publishMessage.Body))
 				// request consumer url
-				resBody, code, err := Ctx.RequestConsumer(processMessage.Key, publishMessage)
+				resBody, code, err := Ctx.RequestConsumerUrl(processMessage.Key, publishMessage)
 				if err != nil {
-					app.Log.Error(("Consumer "+processMessage.Key+" request url failed: "+err.Error()))
+					app.Log.Error("Consumer "+processMessage.Key+" request url failed: "+err.Error())
+					time.Sleep(1 * time.Second)
 					d.Nack(false, true)
 					continue
 				}

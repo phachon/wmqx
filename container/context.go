@@ -92,7 +92,7 @@ func (ctx *Context) InitExchanges() error {
 }
 
 // request consumer url by consumerKey
-func (ctx *Context) RequestConsumer(consumerKey string, publishMessage message.PublishMessage) (resBody string, respCode int, err error) {
+func (ctx *Context) RequestConsumerUrl(consumerKey string, publishMessage message.PublishMessage) (resBody string, respCode int, err error) {
 
 	// get consumer info
 	messageName, consumerId := ctx.SplitConsumerKey(consumerKey)
@@ -121,18 +121,23 @@ func (ctx *Context) RequestConsumer(consumerKey string, publishMessage message.P
 		req, err = http.NewRequest("POST", url, strings.NewReader(body))
 	}else if method == "GET" {
 		req, err = http.NewRequest("GET", url, nil)
+	}else {
+		err = errors.New("request method error")
 	}
 	if err != nil {
 		return
 	}
-	req.Header.Set(app.Conf.GetString("publish.RealIpHeader"), ip)
+	defer req.Body.Close()
+
+	realIpHeader := app.Conf.GetString("publish.RealIpHeader")
+	req.Header.Set(realIpHeader, ip)
 	req.Header.Set("User-Agent", "WMQX version" + app.AppVersion + " - https://github.com/phachon/wmqx")
-	if (headers != nil) && (len(headers) > 0) {
+
+	if len(headers) > 0 {
 		for key, value := range headers {
 			req.Header.Set(key, value)
 		}
 	}
-
 	client := &http.Client{}
 	client.Timeout = time.Duration(time.Duration(timeout) * time.Millisecond)
 	resp, err := client.Do(req)
@@ -141,7 +146,6 @@ func (ctx *Context) RequestConsumer(consumerKey string, publishMessage message.P
 	}
 	respCode = resp.StatusCode
 	defer resp.Body.Close()
-
 	bodyByte, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return
