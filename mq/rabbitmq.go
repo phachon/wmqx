@@ -3,6 +3,7 @@ package mq
 import (
 	"github.com/streadway/amqp"
 	"errors"
+	"wmqx/app"
 )
 
 type RabbitMQ struct {
@@ -46,14 +47,15 @@ func (rq *RabbitMQ) DeclareExchange(name string, kind string, durable bool) erro
 	autoDelete := true // When there is no consumer, the server can delete the Exchange
 	internal := false // Exchanges declared as `internal` do not accept accept publishings.
 	noWait := false  // When noWait is true, declare without waiting for a confirmation from the server.
-	//
+
+	exchangeName := rq.GetExchangeName(name)
 	maxRetryCount := 5
 	retryCount := 0
 	RETRY:
-	err := channel.ExchangeDeclare(name, kind, durable, autoDelete, internal, noWait, nil)
+	err := channel.ExchangeDeclare(exchangeName, kind, durable, autoDelete, internal, noWait, nil)
 	if err != nil {
 		// delete exchange
-		rq.DeleteExchange(name)
+		rq.DeleteExchange(exchangeName)
 		retryCount++
 		if retryCount > maxRetryCount {
 			return err
@@ -72,7 +74,8 @@ func (rq *RabbitMQ) DeleteExchange(name string) error {
 
 	ifUnused := true // When ifUnused is true, the server will only delete the exchange if it has no queue bindings.
 	noWait := false // When noWait is true, declare without waiting for a confirmation from the server.
-	err := channel.ExchangeDelete(name, ifUnused, noWait)
+	exchangeName := rq.GetExchangeName(name)
+	err := channel.ExchangeDelete(exchangeName, ifUnused, noWait)
 	if err != nil {
 		return err
 	}
@@ -134,8 +137,9 @@ func (rq *RabbitMQ) BindQueueToExchange(consumerKey string, messageName string, 
 	channel, _:= rq.Conn.Channel()
 	defer channel.Close()
 
+	exchangeName := rq.GetExchangeName(messageName)
 	noWait := false
-	err := channel.QueueBind(consumerKey, routeKey, messageName, noWait, nil)
+	err := channel.QueueBind(consumerKey, routeKey, exchangeName, noWait, nil)
 	return err
 }
 
@@ -148,7 +152,8 @@ func (rq *RabbitMQ) UnBindQueueToExchange(consumerKey string, messageName string
 	channel, _:= rq.Conn.Channel()
 	defer channel.Close()
 
-	err := channel.QueueUnbind(consumerKey, routeKey, messageName, nil)
+	exchangeName := rq.GetExchangeName(messageName)
+	err := channel.QueueUnbind(consumerKey, routeKey, exchangeName, nil)
 	return err
 }
 
@@ -166,8 +171,9 @@ func (rq *RabbitMQ) Publish(exchange string, routeKey string, body string) error
 	msg := amqp.Publishing{
 		Body: []byte(body),
 	}
+	exchangeName := rq.GetExchangeName(exchange)
 
-	return channel.Publish(exchange, routeKey, mandatory, immediate, msg)
+	return channel.Publish(exchangeName, routeKey, mandatory, immediate, msg)
 }
 
 // declare consumer
@@ -178,8 +184,9 @@ func (rq *RabbitMQ) DeclareConsumer(consumerKey string, durable bool, messageNam
 	if err != nil {
 		return errors.New("Declare queue faild: "+err.Error())
 	}
+	exchangeName := rq.GetExchangeName(messageName)
 	// bind queue to exchange
-	err = rq.BindQueueToExchange(consumerKey, messageName, consumerRouteKey)
+	err = rq.BindQueueToExchange(consumerKey, exchangeName, consumerRouteKey)
 	if err != nil {
 		return errors.New("bind queue exchange fail: "+err.Error())
 	}
@@ -200,6 +207,12 @@ func (rq *RabbitMQ) Consume(queue string, consumer string) (<-chan amqp.Delivery
 
 	// todo consumer
 	return delivery, err
+}
+
+// get real exchange name(prefix+exchange)
+func (rq *RabbitMQ) GetExchangeName(name string) string {
+	prefix := app.Conf.GetString("rabbitmq.prefix")
+	return prefix+name
 }
 
 // close conn

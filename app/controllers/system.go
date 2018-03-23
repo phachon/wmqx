@@ -19,8 +19,7 @@ func NewSystemController() *SystemController {
 
 // reload wmqx
 func (this *SystemController) Reload(ctx *fasthttp.RequestCtx) {
-	r := this.AccessToken(ctx)
-	if r != true {
+	if !this.AccessToken(ctx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}
@@ -39,8 +38,7 @@ func (this *SystemController) Reload(ctx *fasthttp.RequestCtx) {
 
 // restart wmqx
 func (this *SystemController) Restart(ctx *fasthttp.RequestCtx) {
-	r := this.AccessToken(ctx)
-	if r != true {
+	if !this.AccessToken(ctx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}

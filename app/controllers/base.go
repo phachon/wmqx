@@ -19,12 +19,12 @@ type JsonResult struct {
 
 // get request content text string
 func (baseService *BaseController) GetCtxString(ctx *fasthttp.RequestCtx, key string) string {
-	return string(ctx.QueryArgs().Peek(key))
+	return string(ctx.FormValue(key))
 }
 
 // get request content text bool
 func (baseService *BaseController) GetCtxBool(ctx *fasthttp.RequestCtx, key string) bool {
-	str := string(ctx.QueryArgs().Peek(key))
+	str := string(ctx.FormValue(key))
 	if str == "1" {
 		return true
 	}
@@ -33,21 +33,22 @@ func (baseService *BaseController) GetCtxBool(ctx *fasthttp.RequestCtx, key stri
 
 // get request content text int
 func (baseService *BaseController) GetCtxInt(ctx *fasthttp.RequestCtx, key string) int {
-	str := string(ctx.QueryArgs().Peek(key))
+	str := string(ctx.FormValue(key))
 	i, _ := strconv.Atoi(str)
 	return i
 }
 
 // get request content text float64
 func (baseService *BaseController) GetCtxFloat64(ctx *fasthttp.RequestCtx, key string) float64 {
-	str := string(ctx.QueryArgs().Peek(key))
+	str := string(ctx.FormValue(key))
 	i, _ := strconv.Atoi(str)
 	return float64(i)
 }
 
 // access token
 func (baseService *BaseController) AccessToken(ctx *fasthttp.RequestCtx) bool {
-	token := ctx.QueryArgs().Peek("api_token")
+	tokenHeaderName := app.Conf.GetString("api.tokenHeaderName")
+	token := ctx.Request.Header.Peek(tokenHeaderName)
 	apiToken := app.Conf.GetString("api.token")
 	if token == nil || string(token) != apiToken {
 		return false

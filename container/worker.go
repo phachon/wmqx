@@ -1,7 +1,6 @@
 package container
 
 import (
-	"fmt"
 	"wmqx/app"
 	"wmqx/message"
 	"time"
@@ -44,7 +43,7 @@ func (w *worker) Consumer() {
 		defer func() {
 			e := recover()
 			if e != nil {
-				fmt.Printf("%v", e)
+				app.Log.Errorf("consumer worker crash, %v", e)
 			}
 		}()
 
@@ -101,12 +100,15 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 		defer func() {
 			channel.Close()
 			Ctx.RabbitMQPools.Recover(rabbitMq)
-			e := recover()
-			if e != nil {
-				fmt.Printf("%v", e)
-			}
 			// ack consumer process exit
 			processMessage.ExitAck<-true
+			e := recover()
+			if e != nil {
+				app.Log.Errorf("Consumer %s consum process crash, %v", processMessage.Key, e)
+				// retry consumer
+				w.SendConsumerSign(Consumer_Action_Insert, processMessage.Key)
+				app.Log.Infof("Consumer %s retry start", processMessage.Key)
+			}
 		}()
 
 		autoAck := false
@@ -118,6 +120,7 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 		app.Log.Info("Consumer "+processMessage.Key+" process start, wait message...")
 		// update last_time
 		Ctx.ConsumerProcess.UpdateProcessByKey(processMessage.Key, time.Now().Unix())
+		failRetryTime := app.Conf.GetInt("consume.failRetryTime")
 		for {
 			select {
 			case d := <-delivery:
@@ -127,7 +130,7 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 				publishMessage, err := message.NewPublishMessage().JsonDecode(string(d.Body))
 				if err != nil {
 					app.Log.Error("Consumer "+processMessage.Key+" decode publish message error: "+err.Error())
-					time.Sleep(1 * time.Second)
+					time.Sleep(time.Duration(failRetryTime) * time.Second)
 					d.Nack(false, true)
 					continue
 				}
@@ -136,7 +139,7 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 				resBody, code, err := Ctx.RequestConsumerUrl(processMessage.Key, publishMessage)
 				if err != nil {
 					app.Log.Error("Consumer "+processMessage.Key+" request url failed: "+err.Error())
-					time.Sleep(1 * time.Second)
+					time.Sleep(time.Duration(failRetryTime) * time.Second)
 					d.Nack(false, true)
 					continue
 				}

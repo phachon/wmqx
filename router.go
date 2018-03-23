@@ -20,8 +20,8 @@ func (r *Router) Api() *fasthttprouter.Router {
 
 	// message router
 	messageController := controllers.NewMessageController()
-	router.GET("/message/add", messageController.Add)
-	router.GET("/message/update", messageController.Update)
+	router.POST("/message/add", messageController.Add)
+	router.POST("/message/update", messageController.Update)
 	router.GET("/message/delete", messageController.Delete)
 	router.GET("/message/status", messageController.Status)
 	router.GET("/message/list", messageController.List)
@@ -30,8 +30,8 @@ func (r *Router) Api() *fasthttprouter.Router {
 
 	// consumer router
 	consumerController := controllers.NewConsumerController()
-	router.GET("/consumer/add", consumerController.Add)
-	router.GET("/consumer/update", consumerController.Update)
+	router.POST("/consumer/add", consumerController.Add)
+	router.POST("/consumer/update", consumerController.Update)
 	router.GET("/consumer/delete", consumerController.Delete)
 	router.GET("/consumer/status", consumerController.Status)
 	router.GET("/consumer/getConsumerById", consumerController.GetConsumerById)

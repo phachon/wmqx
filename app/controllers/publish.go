@@ -21,10 +21,12 @@ func NewPublishController() *PublishController {
 // publish message
 func (this *PublishController) Publish(ctx *fasthttp.RequestCtx) {
 
+	messageTokenHeader := app.Conf.GetString("publish.messageTokenHeader")
+	messageRouteKey := app.Conf.GetString("publish.messageRouteKeyHeader")
 	queryString := string(ctx.QueryArgs().QueryString())
 	exchangeName := ctx.UserValue("name").(string)
-	token := string(ctx.Request.Header.Peek("Token"))
-	routeKey := string(ctx.Request.Header.Peek("RouteKey"))
+	messageToken := string(ctx.Request.Header.Peek(messageTokenHeader))
+	routeKey := string(ctx.Request.Header.Peek(messageRouteKey))
 	method := strings.ToLower(string(ctx.Request.Header.Method()))
 	bodyByte := ctx.Request.Body()
 	ip := ctx.RemoteIP().String()
@@ -34,14 +36,14 @@ func (this *PublishController) Publish(ctx *fasthttp.RequestCtx) {
 		this.jsonError(ctx, err.Error(), nil)
 		return
 	}
-	if qMessage.IsNeedToken && qMessage.Token != token {
-		this.jsonError(ctx, "Token error", nil)
+	if qMessage.IsNeedToken && qMessage.Token != messageToken {
+		this.jsonError(ctx, "message token error", nil)
 		return
 	}
 
 	// ignore header
 	headerMap := make(map[string]string)
-	ignores := app.Conf.GetStringSlice("publish.IgnoreHeaders")
+	ignores := app.Conf.GetStringSlice("publish.ignoreHeaders")
 	ctx.Request.Header.VisitAll(func(k, v []byte) {
 		var found = false
 		for _, ignore := range ignores {
@@ -70,11 +72,13 @@ func (this *PublishController) Publish(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	err = service.NewMQ().Publish(publishJson, exchangeName, token, routeKey)
+	err = service.NewMQ().Publish(publishJson, exchangeName, messageToken, routeKey)
 	if err != nil {
+		app.Log.Errorf("message %s publish failed, %s", exchangeName, err.Error())
 		this.jsonError(ctx, err.Error(), nil)
 		return
 	}
 
+	app.Log.Infof("message %s publish success!", exchangeName)
 	this.jsonSuccess(ctx, "success", 1)
 }

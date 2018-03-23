@@ -4,21 +4,24 @@ publish = "0.0.0.0:3303"
 
 [api]
 disable = false
+tokenHeaderName = "WMQX_API_TOKEN"
 token = "guest"
 
 [publish]
-#these http headers will be ignored when access to consumer's url
-#Headers : "User-Agent Token RouteKey Host Expect Accept-Encoding  Content-Length Connection"  will be ignored by force
-IgnoreHeaders = []
-#the publisher's real ip will be set in this http header when access to consumer's url
+messageTokenHeader = "WMQX_MESSAGE_TOKEN"
+messageRouteKeyHeader = "WMQX_MESSAGE_ROUTEKEY"
+# these http headers will be ignored when access to consumer's url
+# Headers : "User-Agent Token RouteKey Host Expect Accept-Encoding  Content-Length Connection"  will be ignored by force
+ignoreHeaders = [
+    "WMQX_MESSAGE_TOKEN",
+    "WMQX_MESSAGE_ROUTEKEY",
+]
+# the publisher's real ip will be set in this http header when access to consumer's url
 RealIpHeader = "X-Forwarded-For"
 
 [consume]
-#access consumer url  fail and then how many seconds to sleep and retry
-FailWait = 50
-#consumer's goroutine occur error and then how many seconds to sleep and retry
-GoFailWait = 3
-DataFile = "message.json"
+# consumer url consume fail retry sleep timeout (s)
+failRetryTime = 50
 
 [rabbitmq]
 host = "192.168.30.131"
@@ -26,6 +29,7 @@ port = 5672
 username = "test"
 password = "123456"
 vhost = "/"
+poolNumber = 20
 heartbeat = 2
 connTimeout = 4
 prefix = "wmqx."
@@ -35,11 +39,21 @@ record_type="file"
 filename="./message.json"
 jsonBeautify=true
 
-[log]
+[log.console]
+level="debug"
+color=true
+jsonFormat=false
+showFileLine=false
+
+[log.file]
+level="debug"
 filename="log/wmqx.log"
 maxSize=1048576
 maxLine=1000000
 dateSlice="d"
 jsonFormat=true
 
+[log.file.levelFilename]
+error="log/error.log"
+info="log/info.log"
 

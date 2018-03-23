@@ -4,7 +4,6 @@ import (
 	"wmqx/app"
 	"github.com/valyala/fasthttp"
 	"os"
-	"fmt"
 	"wmqx/container"
 	"wmqx/message"
 )
@@ -33,7 +32,7 @@ func initQMessage() {
 	}
 	qm, err := message.NewQMessage(recordType, message.NewRecordConfigFile(fileConfig))
 	if err != nil {
-		app.Log.Error(err.Error())
+		app.Log.Errorf("Init QMessage Error: %s", err.Error())
 		os.Exit(1)
 	}
 	container.Ctx.QMessage = qm
@@ -43,11 +42,12 @@ func initQMessage() {
 
 // init Ctx RabbitMq pools and check rabbitMQ conn
 func initRabbitMQPools() {
-	container.Ctx.SetRabbitMQPools(20)
+	poolNumber := app.Conf.GetInt("rabbitmq.poolNumber")
+	container.Ctx.SetRabbitMQPools(poolNumber)
 	mq, err := container.Ctx.RabbitMQPools.GetMQ()
 	defer container.Ctx.RabbitMQPools.Recover(mq)
 	if err != nil {
-		app.Log.Info("Init Rabbitmq pools falied: "+err.Error())
+		app.Log.Errorf("Init Rabbitmq pools falied: %s", err.Error())
 		os.Exit(1)
 	}
 	app.Log.Info("Init Rabbitmq pools success!")
@@ -72,14 +72,14 @@ func startApiServer() {
 		defer func() {
 			e := recover()
 			if e != nil {
-				fmt.Printf("go runtime error: %v", e)
+				app.Log.Errorf("strat api server crash: %v", e)
 			}
 		}()
 		apiListen := app.Conf.GetString("listen.api")
-		app.Log.Info("Api server listen start: "+apiListen +"!")
+		app.Log.Info("Api server start listen: "+apiListen +"!")
 		err := fasthttp.ListenAndServe(apiListen, NewRouter().Api().Handler)
 		if err != nil {
-			app.Log.Error("Api server listen failed: "+err.Error())
+			app.Log.Errorf("Api server listen failed: %s", err.Error())
 		}
 	}()
 }
@@ -88,10 +88,10 @@ func startApiServer() {
 func startPublishServer()  {
 
 	publishListen := app.Conf.GetString("listen.publish")
-	app.Log.Info("Publish Server listen start: "+publishListen+"!")
+	app.Log.Info("Publish Server start listen: "+publishListen+"!")
 	err := fasthttp.ListenAndServe(publishListen, NewRouter().Publish().Handler)
 	if err != nil {
-		app.Log.Error("Publish Server listen failed: "+err.Error())
+		app.Log.Errorf("Publish Server listen failed: %s", err.Error())
 		os.Exit(1)
 	}
 }

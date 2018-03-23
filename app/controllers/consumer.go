@@ -20,8 +20,7 @@ func NewConsumerController() *ConsumerController {
 
 // add a consumer
 func (this *ConsumerController) Add(ctx *fasthttp.RequestCtx) {
-	r := this.AccessToken(ctx)
-	if r != true {
+	if !this.AccessToken(ctx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}
@@ -42,7 +41,6 @@ func (this *ConsumerController) Add(ctx *fasthttp.RequestCtx) {
 		this.jsonError(ctx, "param code require!", nil)
 		return
 	}
-
 	// check message name is exist
 	ok := container.Ctx.QMessage.IsExistsMessage(exchangeName)
 	if ok == false {
@@ -60,7 +58,6 @@ func (this *ConsumerController) Add(ctx *fasthttp.RequestCtx) {
 		CheckCode: checkCode,
 		Comment: comment,
 	}
-
 	// declare queue and bind consumer to exchange
 	err := service.NewMQ().DeclareConsumer(consumer.ID, exchangeName, routeKey, false)
 	if err != nil {
@@ -68,7 +65,6 @@ func (this *ConsumerController) Add(ctx *fasthttp.RequestCtx) {
 		this.jsonError(ctx, "add consumer faild: "+err.Error(), nil)
 		return
 	}
-
 	// add a consumer to QMessage
 	err = container.Ctx.QMessage.AddConsumer(exchangeName, consumer)
 	if err != nil {
@@ -83,8 +79,7 @@ func (this *ConsumerController) Add(ctx *fasthttp.RequestCtx) {
 
 // update a consumer
 func (this *ConsumerController) Update(ctx *fasthttp.RequestCtx) {
-	r := this.AccessToken(ctx)
-	if r != true {
+	if !this.AccessToken(ctx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}
@@ -140,14 +135,13 @@ func (this *ConsumerController) Update(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	app.Log.Error("Update message "+exchangeName+" consumer "+consumerId+" success")
+	app.Log.Info("Update message "+exchangeName+" consumer "+consumerId+" success")
 	this.jsonSuccess(ctx, "ok", nil)
 }
 
 // delete a consumer
 func (this *ConsumerController) Delete(ctx *fasthttp.RequestCtx) {
-	r := this.AccessToken(ctx)
-	if r != true {
+	if !this.AccessToken(ctx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}
@@ -185,9 +179,7 @@ func (this *ConsumerController) Delete(ctx *fasthttp.RequestCtx) {
 
 // get consumer status
 func (this *ConsumerController) Status(ctx *fasthttp.RequestCtx) {
-
-	r := this.AccessToken(ctx)
-	if r != true {
+	if !this.AccessToken(ctx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}
@@ -236,9 +228,7 @@ func (this *ConsumerController) Status(ctx *fasthttp.RequestCtx) {
 
 // get consumer by id
 func (this *ConsumerController) GetConsumerById(ctx *fasthttp.RequestCtx) {
-
-	r := this.AccessToken(ctx)
-	if r != true {
+	if !this.AccessToken(ctx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}

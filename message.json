@@ -35,5 +35,23 @@
 		"name": "test2",
 		"token": "kkkkpppp",
 		"comment": "测试message"
+	},
+	{
+		"consumers": [],
+		"durable": true,
+		"is_need_token": true,
+		"mode": "topic",
+		"name": "test25566",
+		"token": "kkkkpppp",
+		"comment": "测试"
+	},
+	{
+		"consumers": [],
+		"durable": true,
+		"is_need_token": true,
+		"mode": "topic",
+		"name": "test25566ss",
+		"token": "kkkkpppp",
+		"comment": "测试"
 	}
 ]

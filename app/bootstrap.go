@@ -6,7 +6,7 @@ import (
 	"flag"
 	"github.com/phachon/go-logger"
 	"strings"
-	"fmt"
+	"github.com/fatih/color"
 )
 
 // app bootstrap init
@@ -33,16 +33,17 @@ var (
 
 // 启动初始化
 func init()  {
-	initPoster()
 	initFlag()
 	initPath()
 	initConfig()
+	initPoster()
 	initLog()
 }
 
 // print
 func initPoster() {
-	fmt.Printf(`
+	fg := color.New(color.FgBlue)
+	fg.Printf(`
 __        __  __  __    ___   __  __
 \ \      / / |  \/  |  / _ \  \ \/ /
  \ \ /\ / /  | |\/| | | | | |  \  /
@@ -91,27 +92,33 @@ func initConfig()  {
 func initLog() {
 
 	Log.Detach("console")
+
+	// console adapter config
+	consoleLevelStr := Conf.GetString("log.console.level")
 	consoleConfig := &go_logger.ConsoleConfig{
-		Color: true, // text show color
+		Color: Conf.GetBool("log.console.color"), // show text color
+		JsonFormat: Conf.GetBool("log.console.jsonFormat"), // text json format
+		ShowFileLine: Conf.GetBool("log.console.showFileLine"), // output file line
 	}
-	Log.Attach("console", go_logger.NewConfigConsole(consoleConfig))
+	Log.Attach("console", Log.LoggerLevel(consoleLevelStr), go_logger.NewConfigConsole(consoleConfig))
 
-	filename := Conf.GetString("log.filename")
-	maxSize := Conf.GetInt64("log.maxSize")
-	maxLine := Conf.GetInt64("log.maxLine")
-	dateSlice := Conf.GetString("log.dateSlice")
-	jsonFormat := Conf.GetBool("log.jsonFormat")
-
+	// file adapter config
+	fileLevelStr := Conf.GetString("log.file.level")
+	levelFilenameConf := Conf.GetStringMapString("log.file.levelFilename")
+	levelFilename := map[int]string{}
+	if len(levelFilenameConf) > 0 {
+		for levelStr, levelFile := range levelFilenameConf {
+			level := Log.LoggerLevel(levelStr)
+			levelFilename[level] = levelFile
+		}
+	}
 	fileConfig := &go_logger.FileConfig{
-		Filename: filename,
-		MaxSize: maxSize,
-		MaxLine: maxLine,
-		DateSlice: dateSlice,
-		JsonFormat: jsonFormat,
+		Filename:  Conf.GetString("log.file.filename"),
+		LevelFileName : levelFilename,
+		MaxSize: Conf.GetInt64("log.file.maxSize"),
+		MaxLine: Conf.GetInt64("log.file.maxLine"),
+		DateSlice: Conf.GetString("log.file.dateSlice"),
+		JsonFormat: Conf.GetBool("log.file.jsonFormat"),
 	}
-
-	Log.Attach("file", go_logger.NewConfigFile(fileConfig))
-
-	// 设置日志级别
-	Log.SetLevel(go_logger.LOGGER_LEVEL_DEBUG)
+	Log.Attach("file", Log.LoggerLevel(fileLevelStr), go_logger.NewConfigFile(fileConfig))
 }

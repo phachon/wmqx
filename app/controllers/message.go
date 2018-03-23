@@ -19,8 +19,7 @@ func NewMessageController() *MessageController {
 
 // add a message
 func (this *MessageController) Add(ctx *fasthttp.RequestCtx) {
-	r := this.AccessToken(ctx)
-	if r != true {
+	if !this.AccessToken(ctx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}
@@ -40,7 +39,6 @@ func (this *MessageController) Add(ctx *fasthttp.RequestCtx) {
 		this.jsonError(ctx, "param error!", nil)
 		return
 	}
-
 	// check message is exists
 	ok := container.Ctx.QMessage.IsExistsMessage(name)
 	if ok == true {
@@ -49,7 +47,7 @@ func (this *MessageController) Add(ctx *fasthttp.RequestCtx) {
 	}
 
 	msg := &message.Message{
-		Consumers  : []*message.Consumer{},
+		Consumers   : []*message.Consumer{},
 		Durable     : durable,
 		IsNeedToken : isNeedToken,
 		Mode        : mode,
@@ -57,29 +55,26 @@ func (this *MessageController) Add(ctx *fasthttp.RequestCtx) {
 		Token       : token,
 		Comment     : comment,
 	}
-
 	err := service.NewMQ().DeclareExchange(name, mode, durable)
 	if err != nil {
-		app.Log.Error("Add message "+name+" failed: "+err.Error())
+		app.Log.Errorf("add message %s failed, %s", name, err.Error())
 		this.jsonError(ctx, "add message failed: "+err.Error(), nil)
 		return
 	}
-
 	err = container.Ctx.QMessage.AddMessage(msg)
 	if err != nil {
-		app.Log.Error("Add message "+name+" failed: "+err.Error())
+		app.Log.Errorf("add message %s failed, %s", name, err.Error())
 		this.jsonError(ctx, "add message failed"+err.Error(), nil)
 		return
 	}
 
-	app.Log.Info("Add message "+name+" success!")
+	app.Log.Infof("add message %s success!", name)
 	this.jsonSuccess(ctx, "success", nil)
 }
 
 // update a message
 func (this *MessageController) Update(ctx *fasthttp.RequestCtx) {
-	r := this.AccessToken(ctx)
-	if r != true {
+	if !this.AccessToken(ctx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}
@@ -99,7 +94,6 @@ func (this *MessageController) Update(ctx *fasthttp.RequestCtx) {
 		this.jsonError(ctx, "param error!", nil)
 		return
 	}
-
 	// check message is exists
 	ok := container.Ctx.QMessage.IsExistsMessage(name)
 	if ok == false {
@@ -115,30 +109,28 @@ func (this *MessageController) Update(ctx *fasthttp.RequestCtx) {
 		Token       : token,
 		Comment     : comment,
 	}
-
 	err := service.NewMQ().DeclareExchange(name, mode, durable)
 	if err != nil {
-		app.Log.Error("Update message "+name+" failed: "+err.Error())
+		app.Log.Errorf("Update message %s failed, %s", name, err.Error())
 		this.jsonError(ctx, "update message failed: "+err.Error(), nil)
 		return
 	}
 
 	err = container.Ctx.QMessage.UpdateMessageByName(name, msg)
 	if err != nil {
-		app.Log.Error("Update message "+name+" failed: "+err.Error())
+		app.Log.Errorf("Update message %s failed, %s", name, err.Error())
 		this.jsonError(ctx, "update message failed: "+err.Error(), nil)
 		return
 	}
 
-	app.Log.Info("Update message "+name+" success!")
+	app.Log.Infof("Update message %s success!", name)
 
 	this.jsonSuccess(ctx, "success", nil)
 }
 
 // delete a message
 func (this *MessageController) Delete(ctx *fasthttp.RequestCtx) {
-	r := this.AccessToken(ctx)
-	if r != true {
+	if !this.AccessToken(ctx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}
@@ -148,7 +140,6 @@ func (this *MessageController) Delete(ctx *fasthttp.RequestCtx) {
 		this.jsonError(ctx, "param require!", nil)
 		return
 	}
-
 	// check message is exists
 	ok := container.Ctx.QMessage.IsExistsMessage(name)
 	if ok == false {
@@ -177,18 +168,16 @@ func (this *MessageController) Delete(ctx *fasthttp.RequestCtx) {
 
 // get message all consumer status
 func (this *MessageController) Status(ctx *fasthttp.RequestCtx) {
-
-	r := this.AccessToken(ctx)
-	if r != true {
+	if !this.AccessToken(ctx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}
+
 	name := this.GetCtxString(ctx, "name")
 	if name == "" {
 		this.jsonError(ctx, "param require!", nil)
 		return
 	}
-
 	// check message is exists
 	ok := container.Ctx.QMessage.IsExistsMessage(name)
 	if ok == false {
@@ -224,8 +213,7 @@ func (this *MessageController) Status(ctx *fasthttp.RequestCtx) {
 
 // get all message list
 func (this *MessageController) List(ctx *fasthttp.RequestCtx) {
-	r := this.AccessToken(ctx)
-	if r != true {
+	if !this.AccessToken(ctx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}
@@ -237,8 +225,7 @@ func (this *MessageController) List(ctx *fasthttp.RequestCtx) {
 
 // get message by name
 func (this *MessageController) GetMessageByName(ctx *fasthttp.RequestCtx) {
-	r := this.AccessToken(ctx)
-	if r != true {
+	if !this.AccessToken(ctx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}
@@ -257,10 +244,9 @@ func (this *MessageController) GetMessageByName(ctx *fasthttp.RequestCtx) {
 	this.jsonSuccess(ctx, "success", msg)
 }
 
-// get consumer by name
+// get consumers by message name
 func (this *MessageController) GetConsumerByName(ctx *fasthttp.RequestCtx) {
-	r := this.AccessToken(ctx)
-	if r != true {
+	if !this.AccessToken(ctx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}
