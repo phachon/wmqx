@@ -127,11 +127,11 @@
 		},
 		{
 			"ImportPath": "github.com/phachon/go-logger",
-			"Rev": "9b1f95e6d2f5f5c1ea8253ed95f715ac4ed7d2b2"
+			"Rev": "1add448a8b3cefc7c5d4210552ab27339a98f157"
 		},
 		{
 			"ImportPath": "github.com/phachon/go-logger/utils",
-			"Rev": "9b1f95e6d2f5f5c1ea8253ed95f715ac4ed7d2b2"
+			"Rev": "1add448a8b3cefc7c5d4210552ab27339a98f157"
 		},
 		{
 			"ImportPath": "github.com/spf13/afero",
