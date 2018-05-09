@@ -146,9 +146,9 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 				app.Log.Info("Consumer "+processMessage.Key+" request url success, response code: "+strconv.Itoa(code)+", body: "+resBody)
 				d.Ack(false)
 			case sign := <-processMessage.SignalChan:
-				app.Log.Info("Counsumer "+processMessage.Key+" receive stop sign")
+				app.Log.Info("Consumer "+processMessage.Key+" receive stop sign")
 				if sign == message.Consumer_Sign_Stop {
-					app.Log.Info("Counsumer "+processMessage.Key+" process exit!")
+					app.Log.Info("Consumer "+processMessage.Key+" process exit!")
 					return
 				}
 			}

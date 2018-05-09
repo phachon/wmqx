@@ -127,11 +127,11 @@
 		},
 		{
 			"ImportPath": "github.com/phachon/go-logger",
-			"Rev": "1add448a8b3cefc7c5d4210552ab27339a98f157"
+			"Rev": "9e475cfae691116763dd6f24836daf587e5e559f"
 		},
 		{
 			"ImportPath": "github.com/phachon/go-logger/utils",
-			"Rev": "1add448a8b3cefc7c5d4210552ab27339a98f157"
+			"Rev": "9e475cfae691116763dd6f24836daf587e5e559f"
 		},
 		{
 			"ImportPath": "github.com/spf13/afero",
@@ -214,6 +214,22 @@
 			"ImportPath": "github.com/fatih/color/vendor/golang.org/x/sys/unix",
 			"Comment": "v1.6.0",
 			"Rev": "507f6050b8568533fb3f5504de8e5205fa62a114"
+		},
+		{
+			"ImportPath": "github.com/mailru/easyjson",
+			"Rev": "8b799c424f57fa123fc63a99d6383bc6e4c02578"
+		},
+		{
+			"ImportPath": "github.com/mailru/easyjson/jlexer",
+			"Rev": "8b799c424f57fa123fc63a99d6383bc6e4c02578"
+		},
+		{
+			"ImportPath": "github.com/mailru/easyjson/jwriter",
+			"Rev": "8b799c424f57fa123fc63a99d6383bc6e4c02578"
+		},
+		{
+			"ImportPath": "github.com/mailru/easyjson/buffer",
+			"Rev": "8b799c424f57fa123fc63a99d6383bc6e4c02578"
 		}
 	]
 }

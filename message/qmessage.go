@@ -28,16 +28,20 @@ type Consumer struct {
 type QMessageRecordFunc func() QMessageRecord
 
 type QMessage struct {
-	Lock *sync.Mutex
+	Lock *sync.RWMutex
 	Messages []*Message
 	record QMessageRecord
 }
 
 type QMessageRecord interface {
-	Init(config *RecordConfig) error
+	Init(QMessageRecordConfig) error
 	Write([]*Message) error
 	Read() ([]*Message, error)
 	Clean() error
+}
+
+type QMessageRecordConfig interface {
+	Name() string
 }
 
 var records = make(map[string]QMessageRecordFunc)
@@ -55,7 +59,7 @@ func Register(recordType string, record QMessageRecordFunc)  {
 }
 
 // New QMessage
-func NewQMessage(recordTypeName string, config *RecordConfig) (qm *QMessage, err error) {
+func NewQMessage(recordTypeName string, config QMessageRecordConfig) (qm *QMessage, err error) {
 
 	recordType, ok := records[recordTypeName]
 	if ok == false {
@@ -67,7 +71,7 @@ func NewQMessage(recordTypeName string, config *RecordConfig) (qm *QMessage, err
 		return
 	}
 	qm = &QMessage{
-		Lock: &sync.Mutex{},
+		Lock: &sync.RWMutex{},
 		Messages: []*Message{},
 		record: recordFun,
 	}
@@ -84,36 +88,41 @@ func (qm *QMessage) IsExistsMessage(name string) bool {
 
 	isExists := false
 	for _, message := range qm.Messages {
+		qm.Lock.RLock()
 		if message.Name == name {
 			isExists = true
+			qm.Lock.RUnlock()
 			break
 		}
+		qm.Lock.RUnlock()
 	}
 	return isExists
 }
 
 // add a message
 func (qm *QMessage) AddMessage(messageValue *Message) error {
-	qm.Lock.Lock()
-	defer qm.Lock.Unlock()
-	for _, message := range qm.Messages {
-		if message.Name == messageValue.Name {
-			return errors.New("message is exist!")
-		}
+
+	if qm.IsExistsMessage(messageValue.Name) {
+		return errors.New("message is exist! ")
 	}
+	qm.Lock.Lock()
 	qm.Messages = append(qm.Messages, messageValue)
 	err := qm.record.Write(qm.Messages)
+	qm.Lock.Unlock()
+
 	return err
 }
 
 // update a message by name
 func (qm *QMessage) UpdateMessageByName(name string, messageValue *Message) error {
-	qm.Lock.Lock()
-	defer qm.Lock.Unlock()
+
 	if name != messageValue.Name {
-		return errors.New("message name error!")
+		return errors.New("message name error! ")
 	}
 	isExist := false
+
+	qm.Lock.Lock()
+	defer qm.Lock.Unlock()
 	for _, message := range qm.Messages {
 		if message.Name == name {
 			message.Durable = messageValue.Durable
@@ -129,46 +138,55 @@ func (qm *QMessage) UpdateMessageByName(name string, messageValue *Message) erro
 		err := qm.record.Write(qm.Messages)
 		return err
 	}else {
-		return errors.New("message not exist!")
+		return errors.New("message not exist! ")
 	}
 }
 
 // delete a message by name
 func (qm *QMessage) DeleteMessageByName(name string) error {
-	qm.Lock.Lock()
-	defer qm.Lock.Unlock()
+
 	messages := []*Message{}
 	for _, message := range qm.Messages {
+		qm.Lock.RLock()
 		if message.Name != name {
 			messages = append(messages, message)
 		}
+		qm.Lock.RUnlock()
 	}
+	qm.Lock.Lock()
 	qm.Messages = messages
 	err := qm.record.Write(qm.Messages)
+	qm.Lock.Unlock()
 	return err
 }
 
 // get message by name
 func (qm *QMessage) GetMessageByName(name string) (*Message, error) {
 	for _, message := range qm.Messages {
+		qm.Lock.RLock()
 		if message.Name == name {
+			qm.Lock.RUnlock()
 			return message, nil
 		}
+		qm.Lock.RUnlock()
 	}
-	return &Message{}, errors.New("message not exist!")
+	return &Message{}, errors.New("message not exist! ")
 }
 
 // get all messages
-func (qm *QMessage) GetMessages() []*Message {
-	return qm.Messages
+func (qm *QMessage) GetMessages() (messages []*Message) {
+	qm.Lock.RLock()
+	messages = qm.Messages
+	qm.Lock.RUnlock()
+	return messages
 }
 
 // delete all message
 func (qm *QMessage) ClearMessages() error {
 	qm.Lock.Lock()
-	defer qm.Lock.Unlock()
 	qm.Messages = []*Message{}
 	err := qm.record.Write(qm.Messages)
+	qm.Lock.Unlock()
 	return err
 }
 
@@ -181,12 +199,14 @@ func (qm *QMessage) IsExistsMessageAndConsumerId(messageName string, consumerId 
 		return isExist
 	}
 	for _, message := range qm.Messages {
+		qm.Lock.RLock()
 		for _, consumer := range message.Consumers {
 			if consumer.ID == consumerId {
 				isExist = true
 				break
 			}
 		}
+		qm.Lock.RUnlock()
 	}
 	return isExist
 }
@@ -213,9 +233,12 @@ func (qm *QMessage) AddConsumer(name string, consumerValue *Consumer) error {
 // get consumers by message name
 func (qm *QMessage) GetConsumersByMessageName(name string) []*Consumer {
 	for _, message := range qm.Messages {
+		qm.Lock.RLock()
 		if name == message.Name {
+			qm.Lock.RUnlock()
 			return message.Consumers
 		}
+		qm.Lock.RUnlock()
 	}
 	return make([]*Consumer, 0)
 }
@@ -227,9 +250,12 @@ func (qm *QMessage) GetConsumerById(name string, id string) (*Consumer, error) {
 		return &Consumer{}, errors.New("consumer not exist!")
 	}
 	for _, consumer := range consumers {
+		qm.Lock.RLock()
 		if consumer.ID == id {
+			qm.Lock.RUnlock()
 			return consumer, nil
 		}
+		qm.Lock.RUnlock()
 	}
 	return &Consumer{}, errors.New("consumer not exist!")
 }
@@ -285,18 +311,20 @@ func (qm *QMessage) DeleteConsumerByNameAndId(name string, consumerId string) er
 // update messages record
 func (qm *QMessage) UpdateRecord() (err error) {
 	qm.Lock.Lock()
-	defer qm.Lock.Unlock()
-
 	err = qm.record.Write(qm.Messages)
+	qm.Lock.Unlock()
 	return
 }
 
 // load record messages to QMessage
 func (qm *QMessage) LoadRecord() (err error) {
 	qm.Lock.Lock()
-	defer qm.Lock.Unlock()
-
 	messages, err := qm.record.Read()
+	if err != nil {
+		qm.Lock.Unlock()
+		return err
+	}
 	qm.Messages = messages
+	qm.Lock.Unlock()
 	return
 }

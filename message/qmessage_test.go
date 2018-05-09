@@ -9,7 +9,7 @@ func GetQMessage() (qm *QMessage, err error){
 		Filename: "../message.json",
 		JsonBeautify: true,
 	}
-	qm, err = NewQMessage("file", NewRecordConfigFile(fileConfig))
+	qm, err = NewQMessage("file", fileConfig)
 	if err != nil {
 		return
 	}

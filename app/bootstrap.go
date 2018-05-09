@@ -83,7 +83,7 @@ func initConfig()  {
 	}
 
 	file := Conf.ConfigFileUsed()
-	if(file != "") {
+	if file != "" {
 		Log.Info("Use config file: " + file)
 	}
 }
@@ -98,9 +98,8 @@ func initLog() {
 	consoleConfig := &go_logger.ConsoleConfig{
 		Color: Conf.GetBool("log.console.color"), // show text color
 		JsonFormat: Conf.GetBool("log.console.jsonFormat"), // text json format
-		ShowFileLine: Conf.GetBool("log.console.showFileLine"), // output file line
 	}
-	Log.Attach("console", Log.LoggerLevel(consoleLevelStr), go_logger.NewConfigConsole(consoleConfig))
+	Log.Attach("console", Log.LoggerLevel(consoleLevelStr), consoleConfig)
 
 	// file adapter config
 	fileLevelStr := Conf.GetString("log.file.level")
@@ -120,5 +119,5 @@ func initLog() {
 		DateSlice: Conf.GetString("log.file.dateSlice"),
 		JsonFormat: Conf.GetBool("log.file.jsonFormat"),
 	}
-	Log.Attach("file", Log.LoggerLevel(fileLevelStr), go_logger.NewConfigFile(fileConfig))
+	Log.Attach("file", Log.LoggerLevel(fileLevelStr), fileConfig)
 }
