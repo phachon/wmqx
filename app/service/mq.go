@@ -5,6 +5,8 @@ import (
 	"errors"
 )
 
+var MQ = NewMQ()
+
 func NewMQ() *MqService {
 	return &MqService{}
 }
@@ -145,7 +147,7 @@ func (s *MqService) StopAllConsumer()  {
 }
 
 // publish message to mq
-func (MqService *MqService) Publish(body string, exchangeName string, token string, routeKey string) (err error) {
+func (s *MqService) Publish(body string, exchangeName string, token string, routeKey string) (err error) {
 	qMessage, err := container.Ctx.QMessage.GetMessageByName(exchangeName)
 	if err != nil {
 		return

@@ -56,7 +56,7 @@ func TestConsumerProcess_GetProcessMessage(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	if process.Key != "key1" {
+	if process.key != "key1" {
 		t.Error("faild")
 	}
 }
@@ -79,7 +79,7 @@ func TestConsumerProcess_UpdateProcessByKey(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	if updateTime != process.LastTime {
+	if updateTime != process.lastTime {
 		t.Error("faild")
 	}
 }

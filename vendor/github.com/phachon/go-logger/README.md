@@ -80,7 +80,7 @@ func main()  {
     consoleConfig := &go_logger.ConsoleConfig{
         Color: true, // Does the text display the color
         JsonFormat: true, // Whether or not formatted into a JSON string
-        Format: "" // JsonFormat is false, logger message output to console format string
+        Format: "", // JsonFormat is false, logger message output to console format string
     }
     // add output to the console
     logger.Attach("console", go_logger.LOGGER_LEVEL_DEBUG, consoleConfig)
@@ -98,7 +98,7 @@ func main()  {
         MaxLine : 100000, // The maximum number of lines in the file, the default 0 is not limited
         DateSlice : "d",  // Cut the document by date, support "Y" (year), "m" (month), "d" (day), "H" (hour), default "no".
         JsonFormat: true, // Whether the file data is written to JSON formatting
-        Format: "" // JsonFormat is false, logger message written to file format string
+        Format: "", // JsonFormat is false, logger message written to file format string
     }
     // add output to the file
     logger.Attach("file", go_logger.LOGGER_LEVEL_DEBUG, fileConfig)
@@ -134,10 +134,10 @@ func main()  {
 **config format**:
 ```
 consoleConfig := &go_logger.ConsoleConfig{
-    Format: "%millisecond_format% [%level_string%] %body%"
+    Format: "%millisecond_format% [%level_string%] %body%",
 }
 fileConfig := &go_logger.FileConfig{
-    Format: "%millisecond_format% [%level_string%] %body%"
+    Format: "%millisecond_format% [%level_string%] %body%",
 }
 ```
 **output**:
@@ -154,6 +154,47 @@ fileConfig := &go_logger.FileConfig{
 
 
 ## Benchmark
+
+system: Linux Mint 18.2 Sonya  
+cpu(s): 4  
+model name: Intel(R) Core(TM) i5-3210M CPU @ 2.50GHz  
+memery: 4G  
+
+```
+BenchmarkLoggerConsoleText          500000             11375 ns/op             672 B/op         15 allocs/op
+BenchmarkLoggerConsoleText-2        500000             11345 ns/op             672 B/op         15 allocs/op
+BenchmarkLoggerConsoleText-4        500000              9897 ns/op             672 B/op         15 allocs/op
+```
+
+```
+BenchmarkLoggerConsoleAsyncText     500000              9323 ns/op             672 B/op         15 allocs/op
+BenchmarkLoggerConsoleAsyncText-2   500000              9087 ns/op             672 B/op         15 allocs/op
+BenchmarkLoggerConsoleAsyncText-4   500000             10685 ns/op             672 B/op         15 allocs/op
+```
+
+```
+BenchmarkLoggerConsoleJson          200000             30918 ns/op            2048 B/op         10 allocs/op
+BenchmarkLoggerConsoleJson-2        200000             33153 ns/op            2048 B/op         10 allocs/op
+BenchmarkLoggerConsoleJson-4        200000             30918 ns/op            2048 B/op         10 allocs/op
+```
+
+```
+BenchmarkLoggerFileText             300000             14083 ns/op             912 B/op         21 allocs/op
+BenchmarkLoggerFileText-2           200000             21159 ns/op             912 B/op         21 allocs/op
+BenchmarkLoggerFileText-4           200000             23776 ns/op             912 B/op         21 allocs/op
+```
+
+```
+BenchmarkLoggerFileAsyncText        300000             13956 ns/op             912 B/op         21 allocs/op
+BenchmarkLoggerFileAsyncText-2      300000             16124 ns/op             912 B/op         21 allocs/op
+BenchmarkLoggerFileAsyncText-4      300000             18641 ns/op             912 B/op         21 allocs/op
+```
+
+```
+BenchmarkLoggerFileJson             200000             15472 ns/op            1968 B/op         15 allocs/op
+BenchmarkLoggerFileJson-2           200000             22523 ns/op            1968 B/op         15 allocs/op
+BenchmarkLoggerFileJson-4           200000             25596 ns/op            1968 B/op         15 allocs/op
+```
 
 ## Reference
 beego/logs : github.com/astaxie/beego/logs

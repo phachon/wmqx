@@ -55,7 +55,7 @@ func (this *MessageController) Add(ctx *fasthttp.RequestCtx) {
 		Token       : token,
 		Comment     : comment,
 	}
-	err := service.NewMQ().DeclareExchange(name, mode, durable)
+	err := service.MQ.DeclareExchange(name, mode, durable)
 	if err != nil {
 		app.Log.Errorf("add message %s failed, %s", name, err.Error())
 		this.jsonError(ctx, "add message failed: "+err.Error(), nil)
@@ -101,7 +101,7 @@ func (this *MessageController) Update(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	msg := &message.Message{
+	msg := &message.Message {
 		Durable     : durable,
 		IsNeedToken : isNeedToken,
 		Mode        : mode,
@@ -109,7 +109,7 @@ func (this *MessageController) Update(ctx *fasthttp.RequestCtx) {
 		Token       : token,
 		Comment     : comment,
 	}
-	err := service.NewMQ().DeclareExchange(name, mode, durable)
+	err := service.MQ.DeclareExchange(name, mode, durable)
 	if err != nil {
 		app.Log.Errorf("Update message %s failed, %s", name, err.Error())
 		this.jsonError(ctx, "update message failed: "+err.Error(), nil)
@@ -147,7 +147,7 @@ func (this *MessageController) Delete(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	err := service.NewMQ().DeleteExchange(name)
+	err := service.MQ.DeleteExchange(name)
 	if err != nil {
 		app.Log.Error("Delete message "+name+" failed: "+err.Error())
 		this.jsonError(ctx, "delete message failed: "+err.Error(), nil)

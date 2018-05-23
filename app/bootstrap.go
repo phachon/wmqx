@@ -16,11 +16,11 @@ var (
 )
 
 var (
-	AppVersion = "v0.1"
+	AppVersion = "v1.0"
 
 	Author = "phachon"
 
-	Address = "https://github.com/phachon/wmqx"
+	Address = "https://github.com/phachon"
 
 	RootPath = ""
 
@@ -52,7 +52,7 @@ __        __  __  __    ___   __  __
 
  Version: %s
  Author : %s
- Link   : %s`+"\r\n"+"\r\n", AppVersion, Author, Address)
+ Github : %s`+"\r\n"+"\r\n", AppVersion, Author, Address)
 }
 
 // init flag
@@ -83,7 +83,7 @@ func initConfig()  {
 	}
 
 	file := Conf.ConfigFileUsed()
-	if file != "" {
+	if(file != "") {
 		Log.Info("Use config file: " + file)
 	}
 }

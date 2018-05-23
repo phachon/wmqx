@@ -30,7 +30,7 @@ func initQMessage() {
 		Filename: filename,
 		JsonBeautify: jsonBeautify,
 	}
-	qm, err := message.NewQMessage(recordType, fileConfig)
+	qm, err := message.NewQMessage(recordType, message.NewRecordConfigFile(fileConfig))
 	if err != nil {
 		app.Log.Errorf("Init QMessage Error: %s", err.Error())
 		os.Exit(1)

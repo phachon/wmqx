@@ -1,11 +1,10 @@
 package message
 
 import (
+	"errors"
 	"encoding/json"
 	"bytes"
 	"wmqx/utils"
-	"reflect"
-	"errors"
 )
 
 const QMessage_Record_Type = "file"
@@ -19,36 +18,26 @@ type RecordFileConfig struct {
 	JsonBeautify bool
 }
 
-func (rc *RecordFileConfig) Name() string  {
-	return QMessage_Record_Type
-}
-
 func NewRecordFile() QMessageRecord {
 	return &RecordFile{}
 }
 
 // init file record
-func (r *RecordFile) Init(config QMessageRecordConfig) error {
-	if config.Name() != QMessage_Record_Type {
-		return errors.New("QMessage record file config error! ")
+func (r *RecordFile) Init(config *RecordConfig) error {
+	if config.File.Filename == "" {
+		return errors.New("QMessage record file config Filename not is empty!")
 	}
 
-	vc := reflect.ValueOf(config)
-	fc := vc.Interface().(*RecordFileConfig)
-	r.config = fc
-
-	if r.config.Filename == "" {
-		return errors.New("QMessage record file config error, filename not empty ")
-	}
 	// check file is exists
-	ok, _ := utils.NewFile().PathExists(r.config.Filename)
+	ok, _ := utils.NewFile().PathExists(config.File.Filename)
 	if ok == false {
-		err := utils.NewFile().CreateFile(r.config.Filename)
+		err := utils.NewFile().CreateFile(config.File.Filename)
 		if err != nil {
 			return err
 		}
 	}
 
+	r.config = config.File
 	return nil
 }
 

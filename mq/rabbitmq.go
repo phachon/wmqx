@@ -4,6 +4,7 @@ import (
 	"github.com/streadway/amqp"
 	"errors"
 	"wmqx/app"
+	"fmt"
 )
 
 type RabbitMQ struct {
@@ -69,6 +70,7 @@ func (rq *RabbitMQ) DeclareExchange(name string, kind string, durable bool) erro
 // params:
 // name : exchange name
 func (rq *RabbitMQ) DeleteExchange(name string) error {
+	fmt.Println("start delete "+name)
 	channel, _:= rq.Conn.Channel()
 	defer channel.Close()
 

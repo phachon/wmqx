@@ -13,7 +13,7 @@ func NewConsumerProcess() *ConsumerProcess {
 
 // consumer process
 type ConsumerProcess struct {
-	lock sync.RWMutex
+	lock sync.Mutex
 	ProcessMessages []*ConsumerProcessMessage
 }
 
@@ -31,13 +31,10 @@ const Consumer_Sign_Stop = "stop"
 func (cp *ConsumerProcess) ProcessIsExist(consumerKey string) bool {
 	isExist := false
 	for _, process := range cp.ProcessMessages {
-		cp.lock.RLock()
 		if process.Key == consumerKey {
-			cp.lock.RUnlock()
 			isExist = true
 			break
 		}
-		cp.lock.RUnlock()
 	}
 	return isExist
 }
@@ -50,18 +47,17 @@ func (cp *ConsumerProcess) GetProcessMessage(consumerKey string) (processMsg *Co
 	}
 
 	for _, process := range cp.ProcessMessages {
-		cp.lock.RLock()
 		if process.Key == consumerKey {
-			cp.lock.RUnlock()
 			return process, nil
 		}
-		cp.lock.RUnlock()
 	}
 	return
 }
 
 // add consumer process
 func (cp *ConsumerProcess) AddProcess(consumerKey string) error {
+	cp.lock.Lock()
+	defer cp.lock.Unlock()
 
 	ok := cp.ProcessIsExist(consumerKey)
 	if ok == true {
@@ -75,46 +71,39 @@ func (cp *ConsumerProcess) AddProcess(consumerKey string) error {
 		ExitAck: make(chan bool, 1),
 	}
 
-	cp.lock.Lock()
 	cp.ProcessMessages = append(cp.ProcessMessages, process)
-	cp.lock.Unlock()
 	return nil
 }
 
 // update consumer process by consumer key
 func (cp *ConsumerProcess) UpdateProcessByKey(consumerKey string, lastTime int64) error {
+	cp.lock.Lock()
+	defer cp.lock.Unlock()
 
 	ok := cp.ProcessIsExist(consumerKey)
 	if ok == false {
 		return errors.New("consumer process not exists!")
 	}
+
 	for _, process := range cp.ProcessMessages {
-		cp.lock.RLock()
 		if process.Key == consumerKey {
-			cp.lock.RUnlock()
-			cp.lock.Lock()
 			process.LastTime = lastTime
-			cp.lock.Unlock()
 			break
 		}
-		cp.lock.RUnlock()
 	}
 	return nil
 }
 
 // delete consumer process by consumer key
 func (cp *ConsumerProcess) DeleteProcessByKey(consumerKey string) error {
+	cp.lock.Lock()
+	defer cp.lock.Unlock()
 
 	processes := []*ConsumerProcessMessage{}
 	for _, process := range cp.ProcessMessages {
-		cp.lock.RLock()
 		if process.Key != consumerKey {
-			cp.lock.RUnlock()
-			cp.lock.Lock()
 			processes = append(processes, process)
-			cp.lock.Unlock()
 		}
-		cp.lock.RUnlock()
 	}
 	cp.ProcessMessages = processes
 	return nil

@@ -78,7 +78,7 @@ func main()  {
     consoleConfig := &go_logger.ConsoleConfig{
         Color: true, // 命令行输出字符串是否显示颜色
         JsonFormat: true, // 命令行输出字符串是否格式化
-        Format: "" // 如果输出的不是 json 字符串，JsonFormat: false, 自定义输出的格式
+        Format: "", // 如果输出的不是 json 字符串，JsonFormat: false, 自定义输出的格式
     }
     // 添加 console 为 logger 的一个输出
     logger.Attach("console", go_logger.LOGGER_LEVEL_DEBUG, consoleConfig)
@@ -96,7 +96,7 @@ func main()  {
         MaxLine : 100000, // 文件最大行数，默认 0 不限制
         DateSlice : "d",  // 文件根据日期切分， 支持 "Y" (年), "m" (月), "d" (日), "H" (时), 默认 "no"， 不切分
         JsonFormat: true, // 写入文件的数据是否 json 格式化
-        Format: "" // 如果写入文件的数据不 json 格式化，自定义日志格式
+        Format: "", // 如果写入文件的数据不 json 格式化，自定义日志格式
     }
     // 添加 file 为 logger 的一个输出
     logger.Attach("file", go_logger.LOGGER_LEVEL_DEBUG, fileConfig)
@@ -132,10 +132,10 @@ Logger Message
 **配置 Format 参数**:
 ```
 consoleConfig := &go_logger.ConsoleConfig{
-    Format: "%millisecond_format% [%level_string%] %body%"
+    Format: "%millisecond_format% [%level_string%] %body%",
 }
 fileConfig := &go_logger.FileConfig{
-    Format: "%millisecond_format% [%level_string%] %body%"
+    Format: "%millisecond_format% [%level_string%] %body%",
 }
 ```
 **输出结果**:
@@ -152,6 +152,47 @@ fileConfig := &go_logger.FileConfig{
 
 
 ## 性能测试结果
+
+system: Linux Mint 18.2 Sonya  
+cpu(s): 4  
+model name: Intel(R) Core(TM) i5-3210M CPU @ 2.50GHz  
+memery: 4G  
+
+```
+BenchmarkLoggerConsoleText          500000             11375 ns/op             672 B/op         15 allocs/op
+BenchmarkLoggerConsoleText-2        500000             11345 ns/op             672 B/op         15 allocs/op
+BenchmarkLoggerConsoleText-4        500000              9897 ns/op             672 B/op         15 allocs/op
+```
+
+```
+BenchmarkLoggerConsoleAsyncText     500000              9323 ns/op             672 B/op         15 allocs/op
+BenchmarkLoggerConsoleAsyncText-2   500000              9087 ns/op             672 B/op         15 allocs/op
+BenchmarkLoggerConsoleAsyncText-4   500000             10685 ns/op             672 B/op         15 allocs/op
+```
+
+```
+BenchmarkLoggerConsoleJson          200000             30918 ns/op            2048 B/op         10 allocs/op
+BenchmarkLoggerConsoleJson-2        200000             33153 ns/op            2048 B/op         10 allocs/op
+BenchmarkLoggerConsoleJson-4        200000             30918 ns/op            2048 B/op         10 allocs/op
+```
+
+```
+BenchmarkLoggerFileText             300000             14083 ns/op             912 B/op         21 allocs/op
+BenchmarkLoggerFileText-2           200000             21159 ns/op             912 B/op         21 allocs/op
+BenchmarkLoggerFileText-4           200000             23776 ns/op             912 B/op         21 allocs/op
+```
+
+```
+BenchmarkLoggerFileAsyncText        300000             13956 ns/op             912 B/op         21 allocs/op
+BenchmarkLoggerFileAsyncText-2      300000             16124 ns/op             912 B/op         21 allocs/op
+BenchmarkLoggerFileAsyncText-4      300000             18641 ns/op             912 B/op         21 allocs/op
+```
+
+```
+BenchmarkLoggerFileJson             200000             15472 ns/op            1968 B/op         15 allocs/op
+BenchmarkLoggerFileJson-2           200000             22523 ns/op            1968 B/op         15 allocs/op
+BenchmarkLoggerFileJson-4           200000             25596 ns/op            1968 B/op         15 allocs/op
+```
 
 ## 参考
 beego/logs : github.com/astaxie/beego/logs
