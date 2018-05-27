@@ -259,7 +259,7 @@ func (qm *QMessage) UpdateConsumerByName(name string, consumerVal *Consumer) err
 		err := qm.record.Write(qm.Messages)
 		return err
 	}else {
-		return errors.New("consumer id not exist!")
+		return errors.New("consumer id not exist! ")
 	}
 }
 

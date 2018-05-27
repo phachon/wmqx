@@ -1,39 +1,30 @@
 [
 	{
-		"consumers": [
-			{
-				"id": "5fcbdbbd-85cd-4163-67cf-39dcea397b1b",
-				"url": "http://127.0.0.1:8090/index.php",
-				"route_key": "test",
-				"timeout": 2000,
-				"code": 200,
-				"check_code": true,
-				"comment": "测试的消费者"
-			}
-		],
+		"consumers": [],
 		"durable": true,
 		"is_need_token": true,
-		"mode": "fanout",
+		"mode": "topic",
 		"name": "ada",
 		"token": "this is tokenssss",
 		"comment": "this is comment"
 	},
 	{
-		"consumers": [],
-		"durable": true,
-		"is_need_token": true,
-		"mode": "direct",
-		"name": "test25566",
-		"token": "kkkkpppp",
-		"comment": "测试"
-	},
-	{
-		"consumers": [],
+		"consumers": [
+			{
+				"id": "80b9e32b-d041-41f0-5721-dafe39494dd7",
+				"url": "http://127.0.0.1:8088/video.php",
+				"route_key": "video",
+				"timeout": 2000,
+				"code": 200,
+				"check_code": true,
+				"comment": ""
+			}
+		],
 		"durable": true,
 		"is_need_token": true,
 		"mode": "topic",
 		"name": "video",
-		"token": "adadasdadasdad",
-		"comment": "视频"
+		"token": "videovideovideo",
+		"comment": "video"
 	}
 ]

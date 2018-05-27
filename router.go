@@ -26,7 +26,7 @@ func (r *Router) Api() *fasthttprouter.Router {
 	router.GET("/message/status", messageController.Status)
 	router.GET("/message/list", messageController.List)
 	router.GET("/message/getMessageByName", messageController.GetMessageByName)
-	router.GET("/message/getConsumerByName", messageController.GetConsumerByName)
+	router.GET("/message/getConsumersByName", messageController.GetConsumersByName)
 
 	// consumer router
 	consumerController := controllers.NewConsumerController()

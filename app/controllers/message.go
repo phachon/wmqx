@@ -245,7 +245,7 @@ func (this *MessageController) GetMessageByName(ctx *fasthttp.RequestCtx) {
 }
 
 // get consumers by message name
-func (this *MessageController) GetConsumerByName(ctx *fasthttp.RequestCtx) {
+func (this *MessageController) GetConsumersByName(ctx *fasthttp.RequestCtx) {
 	if !this.AccessToken(ctx) {
 		this.jsonError(ctx, "token error", nil)
 		return

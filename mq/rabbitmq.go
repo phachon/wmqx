@@ -4,7 +4,6 @@ import (
 	"github.com/streadway/amqp"
 	"errors"
 	"wmqx/app"
-	"fmt"
 )
 
 type RabbitMQ struct {
@@ -43,7 +42,6 @@ func (rq *RabbitMQ) GetChannel() (*amqp.Channel, error) {
 // durable: true or false save exchange when the server is restarted
 func (rq *RabbitMQ) DeclareExchange(name string, kind string, durable bool) error {
 	channel, _:= rq.Conn.Channel()
-	defer channel.Close()
 
 	autoDelete := true // When there is no consumer, the server can delete the Exchange
 	internal := false // Exchanges declared as `internal` do not accept accept publishings.
@@ -55,10 +53,17 @@ func (rq *RabbitMQ) DeclareExchange(name string, kind string, durable bool) erro
 	RETRY:
 	err := channel.ExchangeDeclare(exchangeName, kind, durable, autoDelete, internal, noWait, nil)
 	if err != nil {
+		if channel != nil {
+			channel.Close()
+		}
 		// delete exchange
-		rq.DeleteExchange(exchangeName)
+		channel, _ = rq.Conn.Channel()
+		channel.ExchangeDelete(exchangeName, false, false)
 		retryCount++
 		if retryCount > maxRetryCount {
+			if channel != nil {
+				channel.Close()
+			}
 			return err
 		}
 		goto RETRY
@@ -70,7 +75,6 @@ func (rq *RabbitMQ) DeclareExchange(name string, kind string, durable bool) erro
 // params:
 // name : exchange name
 func (rq *RabbitMQ) DeleteExchange(name string) error {
-	fmt.Println("start delete "+name)
 	channel, _:= rq.Conn.Channel()
 	defer channel.Close()
 
@@ -186,9 +190,8 @@ func (rq *RabbitMQ) DeclareConsumer(consumerKey string, durable bool, messageNam
 	if err != nil {
 		return errors.New("Declare queue faild: "+err.Error())
 	}
-	exchangeName := rq.GetExchangeName(messageName)
 	// bind queue to exchange
-	err = rq.BindQueueToExchange(consumerKey, exchangeName, consumerRouteKey)
+	err = rq.BindQueueToExchange(consumerKey, messageName, consumerRouteKey)
 	if err != nil {
 		return errors.New("bind queue exchange fail: "+err.Error())
 	}

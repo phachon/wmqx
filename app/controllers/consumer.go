@@ -59,7 +59,7 @@ func (this *ConsumerController) Add(ctx *fasthttp.RequestCtx) {
 		Comment: comment,
 	}
 	// declare queue and bind consumer to exchange
-	err := service.NewMQ().DeclareConsumer(consumer.ID, exchangeName, routeKey, false)
+	err := service.MQ.DeclareConsumer(consumer.ID, exchangeName, routeKey, false)
 	if err != nil {
 		app.Log.Error("Add Consumer faild: "+err.Error())
 		this.jsonError(ctx, "add consumer faild: "+err.Error(), nil)
