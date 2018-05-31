@@ -2,3 +2,4 @@ wmqx
 *.exe
 *.log
 message.json
+wmqx.toml

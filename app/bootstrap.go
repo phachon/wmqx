@@ -12,7 +12,7 @@ import (
 // app bootstrap init
 
 var (
-	flagConf = flag.String("conf", "config.toml", "please input conf path")
+	flagConf = flag.String("conf", "wmqx.toml", "please input conf path")
 )
 
 var (
