@@ -24,28 +24,9 @@ func (this *SystemController) Reload(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	app.Log.Info("Reload start")
-	err := service.NewMQ().ReloadExchanges()
-	if err != nil {
-		app.Log.Error("Reload error: "+err.Error())
-		this.jsonError(ctx, "reload error: "+err.Error(), nil)
-		return
-	}
-	app.Log.Info("Reload all exchange success!")
+	app.Log.Info("wmqx start reload all message")
 
-	this.jsonSuccess(ctx, "success", nil)
-}
-
-// restart wmqx
-func (this *SystemController) Restart(ctx *fasthttp.RequestCtx) {
-	if !this.AccessToken(ctx) {
-		this.jsonError(ctx, "token error", nil)
-		return
-	}
-
-	app.Log.Info("Restart start ")
-
-	service.NewMQ().StopAllConsumer()
+	service.MQ.StopAllConsumer()
 
 	// wait all consumer stop
 	for {
@@ -53,19 +34,17 @@ func (this *SystemController) Restart(ctx *fasthttp.RequestCtx) {
 			time.Sleep(1 * time.Second)
 			continue
 		}
-		app.Log.Info("Restart stop all consumer success!")
+		app.Log.Info("wmqx stop all consumer success!")
 		break
 	}
 
 	err := container.Ctx.InitExchanges()
 	if err != nil {
-		app.Log.Error("Restart error: "+err.Error())
-		this.jsonError(ctx, "reload error: "+err.Error(), nil)
+		app.Log.Error("wmqx reload error: "+err.Error())
+		this.jsonError(ctx, "Reload error: "+err.Error(), nil)
 		return
 	}
-	app.Log.Info("Restart init exchange success!")
-
-	app.Log.Info("Restart all consumer success!")
+	app.Log.Info("wmqx reload init exchange success!")
 
 	this.jsonSuccess(ctx, "success", nil)
 }

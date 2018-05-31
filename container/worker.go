@@ -67,11 +67,6 @@ func (w *worker) Consumer() {
 				}
 				// update consumer
 				if consumerWorker.Action == Consumer_Action_Update {
-					//err := Ctx.ConsumerProcess.StopProcessByKey(consumerWorker.ConsumerKey)
-					//if err != nil {
-					//	app.Log.Error(err.Error())
-					//	continue
-					//}
 					w.SendConsumerSign(Consumer_Action_Insert, consumerWorker.ConsumerKey)
 				}
 				// delete consumer

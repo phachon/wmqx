@@ -260,3 +260,43 @@ func (this *MessageController) GetConsumersByName(ctx *fasthttp.RequestCtx) {
 
 	this.jsonSuccess(ctx, "success", consumers)
 }
+
+// reload message by message name
+func (this *MessageController) Reload(ctx *fasthttp.RequestCtx) {
+	if !this.AccessToken(ctx) {
+		this.jsonError(ctx, "token error", nil)
+		return
+	}
+
+	name := this.GetCtxString(ctx, "name")
+	if name == "" {
+		this.jsonError(ctx, "param require!", nil)
+		return
+	}
+
+	// stop message all consumer
+	qMessage, err := container.Ctx.QMessage.GetMessageByName(name)
+	if err != nil {
+		this.jsonError(ctx, err.Error(), nil)
+		return
+	}
+	app.Log.Infof("Start reload message %s", name)
+	consumers := qMessage.Consumers
+	if len(consumers) > 0 {
+		for _, consumer := range consumers {
+			consumerKey := container.Ctx.GetConsumerKey(name, consumer.ID)
+			container.Ctx.ConsumerProcess.StopProcessByKey(consumerKey)
+			app.Log.Infof("stop consumer %s process success", consumerKey)
+		}
+	}
+	// reload exchange
+	err = service.MQ.ReloadExchange(name)
+	if err != nil {
+		app.Log.Error("Reload error: "+err.Error())
+		this.jsonError(ctx, "reload error: "+err.Error(), nil)
+		return
+	}
+	app.Log.Infof("Reload exchange %s success!", name)
+
+	this.jsonSuccess(ctx, "reload success", nil)
+}
