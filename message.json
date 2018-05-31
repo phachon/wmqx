@@ -1,6 +1,25 @@
 [
 	{
-		"consumers": [],
+		"consumers": [
+			{
+				"id": "48b441f9-a54b-487c-4ec5-3d81d3282f2a",
+				"url": "http://127.0.0.1:8081/test222.php",
+				"route_key": "test222",
+				"timeout": 2000,
+				"code": 200,
+				"check_code": true,
+				"comment": ""
+			},
+			{
+				"id": "7f07144b-c9f4-452e-5c2c-23f78cf01b41",
+				"url": "http://127.0.0.1:8081/test111aaa.php",
+				"route_key": "test111aaa",
+				"timeout": 2000,
+				"code": 200,
+				"check_code": true,
+				"comment": ""
+			}
+		],
 		"durable": true,
 		"is_need_token": true,
 		"mode": "topic",
@@ -9,17 +28,7 @@
 		"comment": "this is comment"
 	},
 	{
-		"consumers": [
-			{
-				"id": "80b9e32b-d041-41f0-5721-dafe39494dd7",
-				"url": "http://127.0.0.1:8088/video.php",
-				"route_key": "video",
-				"timeout": 2000,
-				"code": 200,
-				"check_code": true,
-				"comment": ""
-			}
-		],
+		"consumers": [],
 		"durable": true,
 		"is_need_token": true,
 		"mode": "topic",

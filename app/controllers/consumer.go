@@ -59,7 +59,7 @@ func (this *ConsumerController) Add(ctx *fasthttp.RequestCtx) {
 		Comment: comment,
 	}
 	// declare queue and bind consumer to exchange
-	err := service.MQ.DeclareConsumer(consumer.ID, exchangeName, routeKey, false)
+	err := service.MQ.DeclareConsumer(consumer.ID, exchangeName, routeKey)
 	if err != nil {
 		app.Log.Error("Add Consumer faild: "+err.Error())
 		this.jsonError(ctx, "add consumer faild: "+err.Error(), nil)
@@ -118,15 +118,20 @@ func (this *ConsumerController) Update(ctx *fasthttp.RequestCtx) {
 		CheckCode: checkCode,
 		Comment: comment,
 	}
-
-	// declare queue and bind consumer to exchange
-	err := service.NewMQ().DeclareConsumer(consumer.ID, exchangeName, routeKey, true)
+	// unbind consumer and stop consumer
+	err := service.MQ.UnbindStopConsumer(consumer.ID, exchangeName, routeKey)
 	if err != nil {
 		app.Log.Error("Update message "+exchangeName+" consumer "+consumerId+" faild: "+err.Error())
 		this.jsonError(ctx, "update consumer faild: "+err.Error(), nil)
 		return
 	}
-
+	// declare queue and bind consumer to exchange
+	err = service.MQ.DeclareConsumer(consumer.ID, exchangeName, routeKey)
+	if err != nil {
+		app.Log.Error("Update message "+exchangeName+" consumer "+consumerId+" faild: "+err.Error())
+		this.jsonError(ctx, "update consumer faild: "+err.Error(), nil)
+		return
+	}
 	// update a consumer to QMessage
 	err = container.Ctx.QMessage.UpdateConsumerByName(exchangeName, consumer)
 	if err != nil {

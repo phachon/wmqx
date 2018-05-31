@@ -24,7 +24,6 @@ RealIpHeader = "X-Forwarded-For"
 failRetryTime = 50
 
 [rabbitmq]
-#host = "192.168.30.131"
 host = "127.0.0.1"
 port = 5672
 username = "test"

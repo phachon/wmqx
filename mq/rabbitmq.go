@@ -43,7 +43,7 @@ func (rq *RabbitMQ) GetChannel() (*amqp.Channel, error) {
 func (rq *RabbitMQ) DeclareExchange(name string, kind string, durable bool) error {
 	channel, _:= rq.Conn.Channel()
 
-	autoDelete := true // When there is no consumer, the server can delete the Exchange
+	autoDelete := false // When there is no consumer, the server can delete the Exchange
 	internal := false // Exchanges declared as `internal` do not accept accept publishings.
 	noWait := false  // When noWait is true, declare without waiting for a confirmation from the server.
 
