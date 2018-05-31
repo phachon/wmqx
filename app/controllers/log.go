@@ -35,12 +35,12 @@ func (this *LogController) Index(ctx *fasthttp.RequestCtx) {
 	if number == 0 {
 		number = 50
 	}
-	filename := app.Conf.GetString("log.filename")
+	filename := app.Conf.GetString("log.file.filename")
 
 	var err error
 	logs := []string{}
 	if runtime.GOOS == "windows" {
-		logs, err = utils.NewTail().Run(filename, number)
+		logs, err = utils.Tail.Run(filename, number)
 		if err != nil {
 			this.jsonError(ctx, "read log lines error: "+err.Error(), nil)
 			return

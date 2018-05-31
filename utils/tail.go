@@ -9,13 +9,15 @@ const (
 	defaultBufSize = 4096
 )
 
-type Tail struct {}
+var Tail = NewTail()
 
-func NewTail() *Tail {
-	return &Tail{}
+type tail struct {}
+
+func NewTail() *tail {
+	return &tail{}
 }
 
-func (t *Tail)Run(filename string, n int) (lines []string, err error) {
+func (t *tail)Run(filename string, n int) (lines []string, err error) {
 	f, e := os.Stat(filename)
 	if e == nil {
 		size := f.Size()
