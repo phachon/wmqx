@@ -42,7 +42,11 @@ func (rq *RabbitMQ) GetChannel() (*amqp.Channel, error) {
 // durable: true or false save exchange when the server is restarted
 func (rq *RabbitMQ) DeclareExchange(name string, kind string, durable bool) error {
 	channel, _:= rq.Conn.Channel()
-
+	defer func() {
+		if channel != nil {
+			channel.Close()
+		}
+	}()
 	autoDelete := false // When there is no consumer, the server can delete the Exchange
 	internal := false // Exchanges declared as `internal` do not accept accept publishings.
 	noWait := false  // When noWait is true, declare without waiting for a confirmation from the server.
@@ -53,17 +57,11 @@ func (rq *RabbitMQ) DeclareExchange(name string, kind string, durable bool) erro
 	RETRY:
 	err := channel.ExchangeDeclare(exchangeName, kind, durable, autoDelete, internal, noWait, nil)
 	if err != nil {
-		if channel != nil {
-			channel.Close()
-		}
 		// delete exchange
 		channel, _ = rq.Conn.Channel()
 		channel.ExchangeDelete(exchangeName, false, false)
 		retryCount++
 		if retryCount > maxRetryCount {
-			if channel != nil {
-				channel.Close()
-			}
 			return err
 		}
 		goto RETRY
@@ -76,7 +74,11 @@ func (rq *RabbitMQ) DeclareExchange(name string, kind string, durable bool) erro
 // name : exchange name
 func (rq *RabbitMQ) DeleteExchange(name string) error {
 	channel, _:= rq.Conn.Channel()
-	defer channel.Close()
+	defer func() {
+		if channel != nil {
+			channel.Close()
+		}
+	}()
 
 	ifUnused := true // When ifUnused is true, the server will only delete the exchange if it has no queue bindings.
 	noWait := false // When noWait is true, declare without waiting for a confirmation from the server.
@@ -94,7 +96,11 @@ func (rq *RabbitMQ) DeleteExchange(name string) error {
 // durable : durable
 func (rq *RabbitMQ) DeclareQueue(name string, durable bool) error {
 	channel, _:= rq.Conn.Channel()
-	defer channel.Close()
+	defer func() {
+		if channel != nil {
+			channel.Close()
+		}
+	}()
 
 	autoDelete := true // When there is no consumer, the server can delete the queue
 	exclusive := false //Exclusive queues are only accessible by the connection that declares them and will be deleted when the connection closes.
@@ -107,6 +113,7 @@ func (rq *RabbitMQ) DeclareQueue(name string, durable bool) error {
 	if err != nil {
 		rq.DeleteQueue(name)
 		retryCount++
+		channel, _ = rq.Conn.Channel()
 		if retryCount > maxRetryCount {
 			return err
 		}
@@ -115,12 +122,48 @@ func (rq *RabbitMQ) DeclareQueue(name string, durable bool) error {
 	return nil
 }
 
+// count queue messages
+// params:
+// name : queue name
+// durable : durable
+func (rq *RabbitMQ) CountQueueMessages(name string, durable bool) (int, error) {
+	channel, _:= rq.Conn.Channel()
+	defer func() {
+		if channel != nil {
+			channel.Close()
+		}
+	}()
+
+	autoDelete := true // When there is no consumer, the server can delete the queue
+	exclusive := false //Exclusive queues are only accessible by the connection that declares them and will be deleted when the connection closes.
+	noWait := false // When noWait is true, declare without waiting for a confirmation from the server.
+
+	maxRetryCount := 5
+	retryCount := 0
+RETRY:
+	queue, err := channel.QueueDeclare(name, durable, autoDelete, exclusive, noWait, nil)
+	if err != nil {
+		rq.DeleteQueue(name)
+		retryCount++
+		channel, _ = rq.Conn.Channel()
+		if retryCount > maxRetryCount {
+			return 0, err
+		}
+		goto RETRY
+	}
+	return queue.Messages, nil
+}
+
 // delete queue
 // params:
 // name : queue name
 func (rq *RabbitMQ) DeleteQueue(name string) error {
 	channel, _:= rq.Conn.Channel()
-	defer channel.Close()
+	defer func() {
+		if channel != nil {
+			channel.Close()
+		}
+	}()
 
 	ifUnused := false // When ifUnused is true, the queue will not be deleted if there are any consumers on the queue.
 	ifEmpty := false // When ifEmpty is true, the queue will not be deleted if there are any messages remaining on the queue.
@@ -141,7 +184,11 @@ func (rq *RabbitMQ) DeleteQueue(name string) error {
 // routeKey : consumer routeKey
 func (rq *RabbitMQ) BindQueueToExchange(consumerKey string, messageName string, routeKey string) error {
 	channel, _:= rq.Conn.Channel()
-	defer channel.Close()
+	defer func() {
+		if channel != nil {
+			channel.Close()
+		}
+	}()
 
 	exchangeName := rq.GetExchangeName(messageName)
 	noWait := false
@@ -156,7 +203,11 @@ func (rq *RabbitMQ) BindQueueToExchange(consumerKey string, messageName string, 
 // routeKey : consumer routeKey
 func (rq *RabbitMQ) UnBindQueueToExchange(consumerKey string, messageName string, routeKey string) error {
 	channel, _:= rq.Conn.Channel()
-	defer channel.Close()
+	defer func() {
+		if channel != nil {
+			channel.Close()
+		}
+	}()
 
 	exchangeName := rq.GetExchangeName(messageName)
 	err := channel.QueueUnbind(consumerKey, routeKey, exchangeName, nil)
@@ -170,7 +221,11 @@ func (rq *RabbitMQ) UnBindQueueToExchange(consumerKey string, messageName string
 // body : publish body
 func (rq *RabbitMQ) Publish(exchange string, routeKey string, body string) error {
 	channel, _:= rq.Conn.Channel()
-	defer channel.Close()
+	defer func() {
+		if channel != nil {
+			channel.Close()
+		}
+	}()
 
 	mandatory := false // todo
 	immediate := false // todo
@@ -201,7 +256,11 @@ func (rq *RabbitMQ) DeclareConsumer(consumerKey string, durable bool, messageNam
 // consume
 func (rq *RabbitMQ) Consume(queue string, consumer string) (<-chan amqp.Delivery,error) {
 	channel, _ := rq.Conn.Channel()
-	defer channel.Close()
+	defer func() {
+		if channel != nil {
+			channel.Close()
+		}
+	}()
 
 	autoAck := false // is auto ack
 	exclusive := false //

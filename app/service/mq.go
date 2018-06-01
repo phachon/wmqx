@@ -162,6 +162,7 @@ func (s *MqService) DeclareConsumer(consumerId string, messageName string, consu
 	return nil
 }
 
+// stop consumer and unbind consumer to exchange
 func (s *MqService ) UnbindStopConsumer(consumerId string, messageName string, consumerRouteKey string) error {
 
 	consumerKey := container.Ctx.GetConsumerKey(messageName, consumerId)
@@ -189,6 +190,22 @@ func (s *MqService ) UnbindStopConsumer(consumerId string, messageName string, c
 		return errors.New("Delete exchange "+messageName+" consumer id "+consumerId+" failed: "+err.Error())
 	}
 	return nil
+}
+
+func (s *MqService) CountConsumerMessages(consumerId string, messageName string) (int, error) {
+	consumerKey := container.Ctx.GetConsumerKey(messageName, consumerId)
+
+	rabbitMq, err := container.Ctx.RabbitMQPools.GetMQ()
+	if err != nil {
+		return 0, errors.New("rabbitmq pools failed: " + err.Error())
+	}
+	defer container.Ctx.RabbitMQPools.Recover(rabbitMq)
+
+	message, err:= container.Ctx.QMessage.GetMessageByName(messageName)
+	if err != nil {
+		return 0, err
+	}
+	return rabbitMq.CountQueueMessages(consumerKey,message.Durable)
 }
 
 // stop all consumer

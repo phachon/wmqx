@@ -212,11 +212,17 @@ func (this *ConsumerController) Status(ctx *fasthttp.RequestCtx) {
 		this.jsonError(ctx, "get status failed:"+err.Error(), nil)
 		return
 	}
+	count, err := service.MQ.CountConsumerMessages(consumerId, name)
+	if err != nil {
+		this.jsonError(ctx, "get status failed:"+err.Error(), nil)
+		return
+	}
 	data := map[string]interface{}{
 		"name": name,
 		"consumer_id": consumerId,
 		"status": 0,
 		"last_time": 0,
+		"count": count,
 	}
 
 	consumerProcess := container.Ctx.ConsumerProcess.ProcessMessages

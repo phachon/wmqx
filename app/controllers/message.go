@@ -187,7 +187,6 @@ func (this *MessageController) Status(ctx *fasthttp.RequestCtx) {
 
 	data := []map[string]interface{}{}
 	consumers := container.Ctx.QMessage.GetConsumersByMessageName(name)
-
 	consumerProcess := container.Ctx.ConsumerProcess.ProcessMessages
 	if len(consumers) > 0 {
 		for _, consumer := range consumers {
@@ -196,6 +195,7 @@ func (this *MessageController) Status(ctx *fasthttp.RequestCtx) {
 				"consumer_id": consumer.ID,
 				"status": 0,
 				"last_time": 0,
+				"count": 0,
 			}
 			consumerKey := container.Ctx.GetConsumerKey(name, consumer.ID)
 			for _, process := range consumerProcess {
@@ -204,6 +204,11 @@ func (this *MessageController) Status(ctx *fasthttp.RequestCtx) {
 					item["last_time"] = process.LastTime
 				}
 			}
+			count, err := service.MQ.CountConsumerMessages(consumer.ID, name)
+			if err != nil {
+				app.Log.Error("count consumer message failed, "+err.Error())
+			}
+			item["count"] = count
 			data = append(data, item)
 		}
 	}
