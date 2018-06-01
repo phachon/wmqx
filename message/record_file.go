@@ -29,9 +29,9 @@ func (r *RecordFile) Init(config *RecordConfig) error {
 	}
 
 	// check file is exists
-	ok, _ := utils.NewFile().PathExists(config.File.Filename)
+	ok, _ := utils.File.PathExists(config.File.Filename)
 	if ok == false {
-		err := utils.NewFile().CreateFile(config.File.Filename)
+		err := utils.File.CreateFile(config.File.Filename)
 		if err != nil {
 			return err
 		}
@@ -53,13 +53,13 @@ func (r *RecordFile) Write(messages []*Message) error {
 		}
 		messageByte = out.Bytes()
 	}
-	err = utils.NewFile().WriteFile(r.config.Filename, string(messageByte))
+	err = utils.File.WriteFile(r.config.Filename, string(messageByte))
 	return err
 }
 
 // read file
 func (r *RecordFile) Read() (messages []*Message, err error) {
-	data, err := utils.NewFile().ReadAll(r.config.Filename)
+	data, err := utils.File.ReadAll(r.config.Filename)
 	if err != nil {
 		return
 	}
@@ -69,7 +69,7 @@ func (r *RecordFile) Read() (messages []*Message, err error) {
 
 // rewrite file empty
 func (r *RecordFile) Clean() error {
-	err := utils.NewFile().WriteFile(r.config.Filename, "[]")
+	err := utils.File.WriteFile(r.config.Filename, "[]")
 	return err
 }
 

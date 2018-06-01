@@ -119,7 +119,7 @@ func (this *LogController) List(ctx *fasthttp.RequestCtx) {
 	}
 	dir = filepath.Dir(dir)
 
-	files, err := utils.NewFile().WalkDir(dir, ".log")
+	files, err := utils.File.WalkDir(dir, ".log")
 	if err != nil {
 		this.jsonError(ctx, err.Error(), nil)
 		return
@@ -159,7 +159,7 @@ func (this *LogController) Download(ctx *fasthttp.RequestCtx) {
 
 	filePath := logDir+"/"+filename
 
-	ok, _ := utils.NewFile().PathExists(filePath)
+	ok, _ := utils.File.PathExists(filePath)
 	if ok == false {
 		this.jsonError(ctx, "filename not found!", nil)
 		return

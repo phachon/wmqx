@@ -7,16 +7,18 @@ import (
 	"path/filepath"
 )
 
-func NewFile() *File {
-	return &File{}
+var File = NewFile()
+
+func NewFile() *file {
+	return &file{}
 }
 
-type File struct {
+type file struct {
 	
 }
 
 // file or path is exists
-func (f *File) PathExists(path string) (bool, error) {
+func (f *file) PathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil
@@ -28,7 +30,7 @@ func (f *File) PathExists(path string) (bool, error) {
 }
 
 // read file data
-func (f *File) ReadAll(path string) (data string, err error) {
+func (f *file) ReadAll(path string) (data string, err error) {
 	fi, err := os.Open(path)
 	if err != nil {
 		return
@@ -41,7 +43,7 @@ func (f *File) ReadAll(path string) (data string, err error) {
 
 
 // write file
-func (f *File) WriteFile(filename string, data string) (err error) {
+func (f *file) WriteFile(filename string, data string) (err error) {
 	var dataByte = []byte(data)
 	err = ioutil.WriteFile(filename, dataByte, 0666)
 	if err != nil {
@@ -51,14 +53,14 @@ func (f *File) WriteFile(filename string, data string) (err error) {
 }
 
 // create file
-func (f *File) CreateFile(filename string) error {
+func (f *file) CreateFile(filename string) error {
 	newFile, err := os.Create(filename)
 	defer newFile.Close()
 	return err
 }
 
 // get dir all files
-func (f *File) WalkDir(dirPth, suffix string) (files []string, err error) {
+func (f *file) WalkDir(dirPth, suffix string) (files []string, err error) {
 	files = make([]string, 0, 30)
 	suffix = strings.ToUpper(suffix)
 	err = filepath.Walk(dirPth, func(filename string, fi os.FileInfo, err error) error {
