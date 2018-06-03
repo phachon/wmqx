@@ -100,11 +100,29 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 			e := recover()
 			if e != nil {
 				app.Log.Errorf("Consumer %s consum process crash, %v", processMessage.Key, e)
-				// retry consumer
+				// delete consumer process
+				Ctx.ConsumerProcess.DeleteProcessByKey(processMessage.Key)
+				// retry insert consumer process
 				w.SendConsumerSign(Consumer_Action_Insert, processMessage.Key)
 				app.Log.Infof("Consumer %s retry start", processMessage.Key)
 			}
 		}()
+
+		messageName, consumerId := Ctx.SplitConsumerKey(processMessage.Key)
+		qMessage, err := Ctx.QMessage.GetMessageByName(messageName)
+		if err != nil {
+			return
+		}
+		consumer, err := Ctx.QMessage.GetConsumerById(messageName, consumerId)
+		if err != nil {
+			return
+		}
+		consumerKey := Ctx.GetConsumerKey(messageName, consumerId)
+		// declare consumer
+		err = rabbitMq.DeclareConsumer(consumerKey, qMessage.Durable, messageName, consumer.RouteKey)
+		if err != nil {
+			return
+		}
 
 		autoAck := false
 		exclusive := false
@@ -129,7 +147,7 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 					d.Nack(false, true)
 					continue
 				}
-				app.Log.Info("Consumer "+processMessage.Key+" receive message body: "+string(publishMessage.Body))
+				app.Log.Infof("Consumer %s receive message body: %s", processMessage.Key, publishMessage.Body)
 				// request consumer url
 				resBody, code, err := Ctx.RequestConsumerUrl(processMessage.Key, publishMessage)
 				if err != nil {

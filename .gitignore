@@ -1,5 +1,6 @@
 wmqx
 *.exe
 *.log
+*.log.fasthttp.gz
 message.json
 wmqx.toml

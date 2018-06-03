@@ -92,7 +92,7 @@ func (ctx *Context) InitExchanges() error {
 }
 
 // request consumer url by consumerKey
-func (ctx *Context) RequestConsumerUrl(consumerKey string, publishMessage message.PublishMessage) (resBody string, respCode int, err error) {
+func (ctx *Context) RequestConsumerUrl(consumerKey string, publishMessage *message.PublishMessage) (resBody string, respCode int, err error) {
 
 	// get consumer info
 	messageName, consumerId := ctx.SplitConsumerKey(consumerKey)

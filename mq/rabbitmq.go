@@ -4,6 +4,7 @@ import (
 	"github.com/streadway/amqp"
 	"errors"
 	"wmqx/app"
+	"fmt"
 )
 
 type RabbitMQ struct {
@@ -151,6 +152,7 @@ RETRY:
 		}
 		goto RETRY
 	}
+	fmt.Println(queue.Messages)
 	return queue.Messages, nil
 }
 

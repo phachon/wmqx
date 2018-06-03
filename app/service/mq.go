@@ -205,7 +205,7 @@ func (s *MqService) CountConsumerMessages(consumerId string, messageName string)
 	if err != nil {
 		return 0, err
 	}
-	return rabbitMq.CountQueueMessages(consumerKey,message.Durable)
+	return rabbitMq.CountQueueMessages(consumerKey, message.Durable)
 }
 
 // stop all consumer

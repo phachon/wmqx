@@ -19,22 +19,22 @@ type PublishMessage struct {
 }
 
 // json encode publish message
-func (pmg *PublishMessage) JsonEncode(publishMsg *PublishMessage) (string, error){
+func (pmg *PublishMessage) JsonEncode() (string, error){
 	// body base64 encode
-	body := base64.StdEncoding.EncodeToString(publishMsg.BodyByte)
-	publishMsg.Body = body
-	b, err := json.Marshal(publishMsg)
+	body := base64.StdEncoding.EncodeToString(pmg.BodyByte)
+	pmg.Body = body
+	b, err := json.Marshal(pmg)
 	return string(b), err
 }
 
 // json decode publish message
-func (pmg *PublishMessage) JsonDecode(publishMsg string) (p PublishMessage, err error) {
-	json.Unmarshal([]byte(publishMsg), &p)
+func (pmg *PublishMessage) JsonDecode(publishMsg string) (*PublishMessage, error) {
+	json.Unmarshal([]byte(publishMsg), pmg)
 	// body base64 decode
-	requestBody, err := base64.StdEncoding.DecodeString(p.Body)
+	requestBody, err := base64.StdEncoding.DecodeString(pmg.Body)
 	if err != nil {
-		return
+		return pmg, err
 	}
-	p.Body = string(requestBody)
-	return p, nil
+	pmg.Body = string(requestBody)
+	return pmg, nil
 }

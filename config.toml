@@ -21,7 +21,7 @@ RealIpHeader = "X-Forwarded-For"
 
 [consume]
 # consumer url consume fail retry sleep timeout (s)
-failRetryTime = 50
+failRetryTime = 5
 
 [rabbitmq]
 host = "127.0.0.1"

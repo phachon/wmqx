@@ -66,13 +66,13 @@ func (this *PublishController) Publish(ctx *fasthttp.RequestCtx) {
 		Method: method,
 		Args: queryString,
 	}
-	publishJson, err := publishMsg.JsonEncode(publishMsg)
+	publishJson, err := publishMsg.JsonEncode()
 	if err != nil {
 		this.jsonError(ctx, err.Error(), nil)
 		return
 	}
 
-	err = service.NewMQ().Publish(publishJson, exchangeName, messageToken, routeKey)
+	err = service.MQ.Publish(publishJson, exchangeName, messageToken, routeKey)
 	if err != nil {
 		app.Log.Errorf("message %s publish failed, %s", exchangeName, err.Error())
 		this.jsonError(ctx, err.Error(), nil)
