@@ -62,11 +62,11 @@ func (this *PublishController) Publish(ctx *fasthttp.RequestCtx) {
 	publishMsg := &message.PublishMessage{
 		Header:headerMap,
 		Ip: ip,
-		BodyByte: bodyByte,
+		Body: string(bodyByte),
 		Method: method,
 		Args: queryString,
 	}
-	publishJson, err := publishMsg.JsonEncode()
+	publishJson, err := publishMsg.Encode()
 	if err != nil {
 		this.jsonError(ctx, err.Error(), nil)
 		return
@@ -79,6 +79,6 @@ func (this *PublishController) Publish(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	app.Log.Infof("message %s publish success!", exchangeName)
+	app.Log.Infof("message %s publish message %s success!", exchangeName, publishMsg.EncodeOriginalString())
 	this.jsonSuccess(ctx, "success", 1)
 }

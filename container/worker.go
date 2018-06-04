@@ -107,56 +107,66 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 				app.Log.Infof("Consumer %s retry start", processMessage.Key)
 			}
 		}()
-
+		// get message and consumer
 		messageName, consumerId := Ctx.SplitConsumerKey(processMessage.Key)
 		qMessage, err := Ctx.QMessage.GetMessageByName(messageName)
 		if err != nil {
-			return
+			time.Sleep(time.Duration(2) * time.Second)
+			panic(err)
 		}
 		consumer, err := Ctx.QMessage.GetConsumerById(messageName, consumerId)
 		if err != nil {
-			return
+			time.Sleep(time.Duration(2) * time.Second)
+			panic(err)
 		}
 		consumerKey := Ctx.GetConsumerKey(messageName, consumerId)
 		// declare consumer
 		err = rabbitMq.DeclareConsumer(consumerKey, qMessage.Durable, messageName, consumer.RouteKey)
 		if err != nil {
-			return
+			time.Sleep(time.Duration(2) * time.Second)
+			panic(err)
 		}
-
-		autoAck := false
-		exclusive := false
-		noLocal := false
-		noWait := false
-		delivery, _ := channel.Consume(processMessage.Key, "", autoAck, exclusive, noLocal, noWait, nil)
-
+		// set channel Qos
+		err = channel.Qos(1, 0, false)
+		if err != nil {
+			time.Sleep(time.Duration(2) * time.Second)
+			panic(err)
+		}
+		// delivery consume
+		delivery, err := channel.Consume(processMessage.Key, "", false, false, false, false, nil)
+		if err != nil {
+			time.Sleep(time.Duration(2) * time.Second)
+			panic(err)
+		}
 		app.Log.Info("Consumer "+processMessage.Key+" process start, wait message...")
-		// update last_time
+		// update consumer last_time
 		Ctx.ConsumerProcess.UpdateProcessByKey(processMessage.Key, time.Now().Unix())
 		failRetryTime := app.Conf.GetInt("consume.failRetryTime")
 		for {
 			select {
 			case d := <-delivery:
-				// update last_time
+				// update consumer last_time
 				Ctx.ConsumerProcess.UpdateProcessByKey(processMessage.Key, time.Now().Unix())
+				publishMsg := message.NewPublishMessage()
 				// decode publish message
-				publishMessage, err := message.NewPublishMessage().JsonDecode(string(d.Body))
+				publishMessage, err := publishMsg.Decode(string(d.Body))
 				if err != nil {
-					app.Log.Error("Consumer "+processMessage.Key+" decode publish message error: "+err.Error())
-					time.Sleep(time.Duration(failRetryTime) * time.Second)
+					app.Log.Error("Consumer "+processMessage.Key+" json decode publish message error: "+err.Error())
 					d.Nack(false, true)
+					time.Sleep(time.Duration(failRetryTime) * time.Second)
 					continue
 				}
-				app.Log.Infof("Consumer %s receive message body: %s", processMessage.Key, publishMessage.Body)
+				app.Log.Infof("Consumer %s receive message body: %s", processMessage.Key, publishMsg.OriginalString())
+
 				// request consumer url
 				resBody, code, err := Ctx.RequestConsumerUrl(processMessage.Key, publishMessage)
 				if err != nil {
 					app.Log.Error("Consumer "+processMessage.Key+" request url failed: "+err.Error())
-					time.Sleep(time.Duration(failRetryTime) * time.Second)
 					d.Nack(false, true)
+					time.Sleep(time.Duration(failRetryTime) * time.Second)
 					continue
 				}
-				app.Log.Info("Consumer "+processMessage.Key+" request url success, response code: "+strconv.Itoa(code)+", body: "+resBody)
+				app.Log.Info("Consumer "+processMessage.Key+" consume success, response code: "+strconv.Itoa(code)+", body: "+resBody)
 				d.Ack(false)
 			case sign := <-processMessage.SignalChan:
 				app.Log.Info("Consumer "+processMessage.Key+" receive stop sign")

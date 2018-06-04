@@ -76,7 +76,7 @@ func (ctx *Context) InitExchanges() error {
 		// declare queue
 		for _, consumer := range msg.Consumers {
 			consumerKey := ctx.GetConsumerKey(msg.Name, consumer.ID)
-			err := rabbitMq.DeclareQueue(consumerKey, msg.Durable)
+			_, err := rabbitMq.DeclareQueue(consumerKey, msg.Durable)
 			if err != nil {
 				return errors.New("Declare queue faild: "+err.Error())
 			}
@@ -127,7 +127,6 @@ func (ctx *Context) RequestConsumerUrl(consumerKey string, publishMessage *messa
 	if err != nil {
 		return
 	}
-	defer req.Body.Close()
 
 	realIpHeader := app.Conf.GetString("publish.RealIpHeader")
 	req.Header.Set(realIpHeader, ip)
@@ -144,8 +143,8 @@ func (ctx *Context) RequestConsumerUrl(consumerKey string, publishMessage *messa
 	if err != nil {
 		return
 	}
-	respCode = resp.StatusCode
 	defer resp.Body.Close()
+	respCode = resp.StatusCode
 	bodyByte, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return

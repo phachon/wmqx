@@ -4,7 +4,6 @@ import (
 	"github.com/streadway/amqp"
 	"errors"
 	"wmqx/app"
-	"fmt"
 )
 
 type RabbitMQ struct {
@@ -95,7 +94,7 @@ func (rq *RabbitMQ) DeleteExchange(name string) error {
 // params:
 // name : queue name
 // durable : durable
-func (rq *RabbitMQ) DeclareQueue(name string, durable bool) error {
+func (rq *RabbitMQ) DeclareQueue(name string, durable bool) (queue amqp.Queue, err error) {
 	channel, _:= rq.Conn.Channel()
 	defer func() {
 		if channel != nil {
@@ -110,50 +109,17 @@ func (rq *RabbitMQ) DeclareQueue(name string, durable bool) error {
 	maxRetryCount := 5
 	retryCount := 0
 	RETRY:
-	_, err := channel.QueueDeclare(name, durable, autoDelete, exclusive, noWait, nil)
+	queue, err = channel.QueueDeclare(name, durable, autoDelete, exclusive, noWait, nil)
 	if err != nil {
 		rq.DeleteQueue(name)
 		retryCount++
 		channel, _ = rq.Conn.Channel()
 		if retryCount > maxRetryCount {
-			return err
+			return
 		}
 		goto RETRY
 	}
-	return nil
-}
-
-// count queue messages
-// params:
-// name : queue name
-// durable : durable
-func (rq *RabbitMQ) CountQueueMessages(name string, durable bool) (int, error) {
-	channel, _:= rq.Conn.Channel()
-	defer func() {
-		if channel != nil {
-			channel.Close()
-		}
-	}()
-
-	autoDelete := true // When there is no consumer, the server can delete the queue
-	exclusive := false //Exclusive queues are only accessible by the connection that declares them and will be deleted when the connection closes.
-	noWait := false // When noWait is true, declare without waiting for a confirmation from the server.
-
-	maxRetryCount := 5
-	retryCount := 0
-RETRY:
-	queue, err := channel.QueueDeclare(name, durable, autoDelete, exclusive, noWait, nil)
-	if err != nil {
-		rq.DeleteQueue(name)
-		retryCount++
-		channel, _ = rq.Conn.Channel()
-		if retryCount > maxRetryCount {
-			return 0, err
-		}
-		goto RETRY
-	}
-	fmt.Println(queue.Messages)
-	return queue.Messages, nil
+	return
 }
 
 // delete queue
@@ -243,7 +209,7 @@ func (rq *RabbitMQ) Publish(exchange string, routeKey string, body string) error
 func (rq *RabbitMQ) DeclareConsumer(consumerKey string, durable bool, messageName string, consumerRouteKey string) (err error) {
 
 	// declare queue
-	err = rq.DeclareQueue(consumerKey, durable)
+	_, err = rq.DeclareQueue(consumerKey, durable)
 	if err != nil {
 		return errors.New("Declare queue faild: "+err.Error())
 	}

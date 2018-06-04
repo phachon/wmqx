@@ -36,7 +36,7 @@ func (s *MqService) ReloadExchanges() error {
 		// declare queue
 		for _, consumer := range msg.Consumers {
 			consumerKey := container.Ctx.GetConsumerKey(msg.Name, consumer.ID)
-			err := rabbitMq.DeclareQueue(consumerKey, msg.Durable)
+			_, err := rabbitMq.DeclareQueue(consumerKey, msg.Durable)
 			if err != nil {
 				return errors.New("Declare queue failed: "+err.Error())
 			}
@@ -73,7 +73,7 @@ func (s *MqService) ReloadExchange(messageName string) error {
 	// declare queue
 	for _, consumer := range message.Consumers {
 		consumerKey := container.Ctx.GetConsumerKey(message.Name, consumer.ID)
-		err := rabbitMq.DeclareQueue(consumerKey, message.Durable)
+		_, err := rabbitMq.DeclareQueue(consumerKey, message.Durable)
 		if err != nil {
 			return errors.New("Declare queue failed: "+err.Error())
 		}
@@ -205,7 +205,11 @@ func (s *MqService) CountConsumerMessages(consumerId string, messageName string)
 	if err != nil {
 		return 0, err
 	}
-	return rabbitMq.CountQueueMessages(consumerKey, message.Durable)
+	queue, err := rabbitMq.DeclareQueue(consumerKey, message.Durable)
+	if err != nil {
+		return 0, err
+	}
+	return queue.Messages, nil
 }
 
 // stop all consumer
