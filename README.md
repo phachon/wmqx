@@ -5,7 +5,6 @@
 [![godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/phachon/wmqx)
 [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/phachon/wmqx/master/LICENSE)
 [![go_Report](https://goreportcard.com/badge/github.com/phachon/wmqx)](https://goreportcard.com/report/github.com/phachon/wmqx)
-[![powered_by](https://img.shields.io/badge/powered_by-Go-3362c2.svg?style=flat)]()
 [![platforms](https://img.shields.io/badge/platform-All-yellow.svg?style=flat)]()
 [![download_count](https://img.shields.io/github/downloads/phachon/wmqx/total.svg?style=plastic)](https://github.com/phachon/wmqx/releases) 
 [![release](https://img.shields.io/github/release/phachon/wmqx.svg?style=flat)](https://github.com/phachon/wmqx/releases) 
