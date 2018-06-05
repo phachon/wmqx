@@ -16,11 +16,11 @@ var (
 )
 
 var (
-	AppVersion = "v1.0"
+	Version = "v0.1"
 
-	Author = "phachon"
+	author = "phachon"
 
-	Address = "https://github.com/phachon"
+	address = "https://github.com/phachon"
 
 	RootPath = ""
 
@@ -52,7 +52,7 @@ __        __  __  __    ___   __  __
 
  Version: %s
  Author : %s
- Github : %s`+"\r\n"+"\r\n", AppVersion, Author, Address)
+ Github : %s`+"\r\n"+"\r\n", Version, author, address)
 }
 
 // init flag

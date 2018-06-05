@@ -17,6 +17,19 @@ func NewSystemController() *SystemController {
 	return &SystemController{}
 }
 
+func (this *SystemController) Index(ctx *fasthttp.RequestCtx) {
+	//if !this.AccessToken(ctx) {
+	//	this.jsonError(ctx, "token error", nil)
+	//	return
+	//}
+
+	data := map[string]string{
+		"version": app.Version,
+	}
+
+	this.jsonSuccess(ctx, "welcome use wmqx!", data)
+}
+
 // reload wmqx
 func (this *SystemController) Reload(ctx *fasthttp.RequestCtx) {
 	if !this.AccessToken(ctx) {

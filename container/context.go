@@ -130,7 +130,7 @@ func (ctx *Context) RequestConsumerUrl(consumerKey string, publishMessage *messa
 
 	realIpHeader := app.Conf.GetString("publish.RealIpHeader")
 	req.Header.Set(realIpHeader, ip)
-	req.Header.Set("User-Agent", "WMQX version" + app.AppVersion + " - https://github.com/phachon/wmqx")
+	req.Header.Set("User-Agent", "WMQX version" + app.Version + " - https://github.com/phachon/wmqx")
 
 	if len(headers) > 0 {
 		for key, value := range headers {

@@ -40,6 +40,8 @@ func (r *Router) Api() *fasthttprouter.Router {
 	// system router
 	systemController := controllers.NewSystemController()
 	router.GET("/system/reload", systemController.Reload)
+	router.GET("/system/index", systemController.Index)
+	router.GET("/", systemController.Index)
 
 	// log router
 	logController := controllers.NewLogController()
