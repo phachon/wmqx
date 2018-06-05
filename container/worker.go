@@ -127,7 +127,7 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 			panic(err)
 		}
 		// set channel Qos
-		err = channel.Qos(1, 0, false)
+		err = channel.Qos(3, 0, false)
 		if err != nil {
 			time.Sleep(time.Duration(2) * time.Second)
 			panic(err)

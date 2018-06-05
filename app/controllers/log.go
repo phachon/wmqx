@@ -66,7 +66,7 @@ func (this *LogController) Search(ctx *fasthttp.RequestCtx) {
 				return
 			}
 		}else {
-			command := fmt.Sprintf("tail -n %d %s", number, filename)
+			command := fmt.Sprintf("tail -n %d %s |tac", number, filename)
 			cmd := exec.Command("bash", "-c", command)
 			stdOut := &bytes.Buffer{}
 			stdErr := &bytes.Buffer{}
@@ -85,7 +85,7 @@ func (this *LogController) Search(ctx *fasthttp.RequestCtx) {
 			this.jsonError(ctx, "windows not support keyword search", nil)
 			return
 		}
-		command := fmt.Sprintf("grep \"%s\" %s |tail -n 100", keyword, filename)
+		command := fmt.Sprintf("grep \"%s\" %s |tail -n 100|tac", keyword, filename)
 		cmd := exec.Command("bash", "-c", command)
 		stdOut := &bytes.Buffer{}
 		stdErr := &bytes.Buffer{}

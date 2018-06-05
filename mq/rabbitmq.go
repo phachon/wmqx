@@ -102,7 +102,8 @@ func (rq *RabbitMQ) DeclareQueue(name string, durable bool) (queue amqp.Queue, e
 		}
 	}()
 
-	autoDelete := true // When there is no consumer, the server can delete the queue
+	//autoDelete := true // When there is no consumer, the server can delete the queue
+	autoDelete := !durable // When there is no consumer, the server can delete the queue
 	exclusive := false //Exclusive queues are only accessible by the connection that declares them and will be deleted when the connection closes.
 	noWait := false // When noWait is true, declare without waiting for a confirmation from the server.
 
