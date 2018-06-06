@@ -93,7 +93,7 @@ $ ./wmqx --conf wmqx.conf
 - [PHP](https://github.com/phachon/wmqx/wiki/publish_sdk)
 - [Go](https://github.com/phachon/wmqx/wiki/publish_go)
 
-[Use Example](./docs/examples)
+[Use Example](./docs/_examples)
 
 ## Contribution
 
