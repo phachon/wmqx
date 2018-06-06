@@ -48,7 +48,8 @@ RabbitMQ 是一个轻量级的，易于部署在本地和云上，支持多个�
 2. 帮助用户实现消费进程，只需要通过接口添加对应的消费者 api 即可实现消费或消息推送
 3. 每一个消费者由单独的 goroutine 处理，消费者相互独立消费
 4. 部署简单方便，支持跨平台部署，使用和接入成本低
-5. 提供一套完善的后台管理 UI, 项目 [WMQX-UI](https://github.com/phachon/wmqx-ui)
+5. 通过 http 的发布接口发送消息，WMQX 消费进程将原始请求信息转发到对应的消费者URL
+6. 提供一套完善的后台管理 UI, 项目 [WMQX-UI](https://github.com/phachon/wmqx-ui)
 
 ## 安装
 
@@ -83,7 +84,11 @@ $ ./wmqx --conf wmqx.conf
 
 ## 使用文档
 
-[管理消息文档](https://github.com/phachon/wmqx/wiki)
+[管理消息Api文档](https://github.com/phachon/wmqx/wiki/message)
+
+[发布消息Api文档](https://github.com/phachon/wmqx/wiki/publish)
+
+[发布消息SDK](https://github.com/phachon/wmqx/wiki/publish)
 
 [发布消息示例](./docs/publish)
 

@@ -48,7 +48,8 @@ As shown in the figure below:
 2. To help users realize the consumption process, they only need to add the corresponding consumer API through the interface to realize the consumption or message push
 3. Each consumer is handled by a separate goroutine, and consumers consume each other independently
 4. Simple and convenient deployment, support cross-platform deployment, low use and access costs
-5. Provide a complete set of background management UI, see [WMQX-UI](https://github.com/phachon/wmqx-ui)
+5. The WMQX consuming process forwards the original request information to the corresponding consumer URL by sending the message through the HTTP publishing interface
+6. Provide a complete set of background management UI, see [WMQX-UI](https://github.com/phachon/wmqx-ui)
 
 ## Install
 
@@ -84,9 +85,13 @@ $ ./wmqx --conf wmqx.conf
 
 ## Using document
 
-[Manage message documents](https://github.com/phachon/wmqx/wiki)
+[Manage Api Documents](https://github.com/phachon/wmqx/wiki/message)
 
-[Publish message example](./docs/publish)
+[Publish Api Documents](https://github.com/phachon/wmqx/wiki/publish)
+
+[Publish SDK](https://github.com/phachon/wmqx/wiki/publish)
+
+[Publish Example](./docs/publish)
 
 ## Contribution
 

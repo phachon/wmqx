@@ -141,7 +141,7 @@ func (this *ConsumerController) Update(ctx *fasthttp.RequestCtx) {
 	}
 
 	app.Log.Info("Update message "+exchangeName+" consumer "+consumerId+" success")
-	this.jsonSuccess(ctx, "ok", nil)
+	this.jsonSuccess(ctx, "success", nil)
 }
 
 // delete a consumer

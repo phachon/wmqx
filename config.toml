@@ -43,8 +43,11 @@ connTimeout = 4
 prefix = "wmqx."
 
 [message]
+# The type of the record message, currently only support file
 record_type="file"
+# message info filename
 filename="./message.json"
+# is json beautify
 jsonBeautify=true
 
 # log config (https://github.com/phachon/go-logger)
