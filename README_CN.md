@@ -60,13 +60,13 @@ RabbitMQ 是一个轻量级的，易于部署在本地和云上，支持多个�
 下载最新的二进制程序，[https://github.com/phachon/wmqx/releases](https://github.com/phachon/wmqx/releases)
 ```shell
 # 解压
-$ tar -zxvf wmqx.tar.gz
+$ tar -zxvf /wmqx-linux-amd64.tar.gz
 ```
 
 ## 运行
 ```
 # 默认的配置文件使用当前目录下的 wmqx.conf
-$ cp config.toml wmqx.conf
+$ cp config.toml wmqx.toml
 
 # 配置 wmqx.conf
 [rabbitmq]

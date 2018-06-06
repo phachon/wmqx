@@ -60,14 +60,14 @@ If you don't have a RabbitMQ service, you'll need to install it yourself, which 
 Download the latest binary from [https://github.com/phachon/wmqx/releases](https://github.com/phachon/wmqx/releases)
 ```shell
 # Unpack 
-$ tar -zxvf wmqx.tar.gz
+$ tar -zxvf /wmqx-linux-amd64.tar.gz
 ```
 
 ## Start Run
 
 ```
-# The default configuration file USES wmqx.conf in the current directory
-$ cp config.toml wmqx.conf
+# The default configuration file use wmqx.conf in the current directory
+$ cp config.toml wmqx.toml
 
 # config wmqx.conf
 [rabbitmq]
