@@ -38,6 +38,7 @@ As shown in the figure below:
 3. For the first time using the MQ or not clear the principle of the RabbitMQ users, don't need to understand the use of the RabbitMQ and coded, need only through the HTTP access services, can be quickly using the message queue.
 
 > So WMQX was born. The working principle is as follows:
+
 [![wmqx](./docs/images/wmqx.png)](https://github.com/phachon/wmqx)
 
 ## Feature
