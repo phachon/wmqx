@@ -128,7 +128,7 @@ func (ctx *Context) RequestConsumerUrl(consumerKey string, publishMessage *messa
 		return
 	}
 
-	realIpHeader := app.Conf.GetString("publish.RealIpHeader")
+	realIpHeader := app.Conf.GetString("publish.realIpHeader")
 	req.Header.Set(realIpHeader, ip)
 	req.Header.Set("User-Agent", "WMQX version" + app.Version + " - https://github.com/phachon/wmqx")
 

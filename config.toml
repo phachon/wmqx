@@ -1,14 +1,21 @@
 [listen]
+# api server
 api = "0.0.0.0:3302"
+# publish server
 publish = "0.0.0.0:3303"
 
 [api]
+# is open api server
 disable = false
+# api server auth token http header token name
 tokenHeaderName = "WMQX_API_TOKEN"
+# api server auth token http header token value
 token = "guest"
 
 [publish]
+# publish server auth message token http header token name
 messageTokenHeader = "WMQX_MESSAGE_TOKEN"
+# publish server auth message route_key http header route_key name
 messageRouteKeyHeader = "WMQX_MESSAGE_ROUTEKEY"
 # these http headers will be ignored when access to consumer's url
 # Headers : "User-Agent Token RouteKey Host Expect Accept-Encoding  Content-Length Connection"  will be ignored by force
@@ -17,7 +24,7 @@ ignoreHeaders = [
     "WMQX_MESSAGE_ROUTEKEY",
 ]
 # the publisher's real ip will be set in this http header when access to consumer's url
-RealIpHeader = "X-Forwarded-For"
+realIpHeader = "X-Forwarded-For"
 
 [consume]
 # consumer url consume fail retry sleep timeout (s)
@@ -32,6 +39,7 @@ vhost = "/"
 poolNumber = 20
 heartbeat = 2
 connTimeout = 4
+# wmqx exchange name prefix
 prefix = "wmqx."
 
 [message]
@@ -39,6 +47,7 @@ record_type="file"
 filename="./message.json"
 jsonBeautify=true
 
+# log config (https://github.com/phachon/go-logger)
 [log.console]
 level="debug"
 color=true
@@ -56,4 +65,3 @@ jsonFormat=true
 [log.file.levelFilename]
 error="log/error.log"
 info="log/info.log"
-

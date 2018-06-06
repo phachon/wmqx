@@ -44,34 +44,59 @@ RabbitMQ 是一个轻量级的，易于部署在本地和云上，支持多个�
 [![wmqx](./docs/images/wmqx.png)](https://github.com/phachon/wmqx)
 
 ## 功能
-1. 无需关心消息队列的工作方式，提供高性能，高可用的 http 接口来对消息进行管理
+1. 无需连接 RabbitMQ，提供高性能，高可用的 http 接口来对消息进行管理
 2. 帮助用户实现消费进程，只需要通过接口添加对应的消费者 api 即可实现消费或消息推送
-3. 每一个消费者由单独的 goroutine 处理，消费者相互独立
-4. 部署简单方便，支持跨平台部署
-5. 提供一套完善的后台管理 UI, 项目 [WMQX-UI](https://github.com/phahcon/wmqx-ui)
+3. 每一个消费者由单独的 goroutine 处理，消费者相互独立消费
+4. 部署简单方便，支持跨平台部署，使用和接入成本低
+5. 提供一套完善的后台管理 UI, 项目 [WMQX-UI](https://github.com/phachon/wmqx-ui)
 
 ## 安装
-```go
 
+### RabbitMQ
+如果你没有 RabbitMQ 服务的话，你需要自行安装，安装方法非常简单， [http://www.rabbitmq.com/download.html](http://www.rabbitmq.com/download.html)
+
+### WMQX
+下载最新的二进制程序，[https://github.com/phachon/wmqx/releases](https://github.com/phachon/wmqx/releases)
+```shell
+# 解压
+$ tar -zxvf wmqx.tar.gz
 ```
 
-## 使用
-```go
+## 运行
+```
+# 默认的配置文件使用当前目录下的 wmqx.conf
+$ cp config.toml wmqx.conf
 
+# 配置 wmqx.conf
+[rabbitmq]
+host = "RabbitMQ Server Ip"
+port = 5672
+username = "test"
+password = "123456"
+vhost = "/"
+
+# 启动
+$ ./wmqx 
+# 指定配置文件路径启动
+$ ./wmqx --conf wmqx.conf
 ```
 
-# 文档
+## 使用文档
 
-# 示例
+[管理消息文档](https://github.com/phachon/wmqx/wiki)
 
-[一些例子](_examples)
+[发布消息示例](./docs/publish)
+
+## 贡献
+
+[贡献列表](https://github.com/phachon/wmqx/graphs/contributors)
 
 ## 反馈
 
 - 如果您喜欢该项目，请 [Start](https://github.com/phachon/wmqx/stargazers).
 - 如果在使用过程中有任何问题， 请提交 [Issue](https://github.com/phachon/wmqx/issues).
 - 如果您发现并解决了bug，请提交 [Pull Request](https://github.com/phachon/wmqx/pulls).
-- 如果您想定制开发，欢迎 [Fork](https://github.com/phachon/wmqx/network/members).
+- 如果您想二次开发，欢迎 [Fork](https://github.com/phachon/wmqx/network/members).
 - 如果你想交个朋友，欢迎发邮件给 [phachon@163.com](mailto:phachon@163.com).
 
 ## License
