@@ -9,7 +9,7 @@
 [![download_count](https://img.shields.io/github/downloads/phachon/wmqx/total.svg?style=plastic)](https://github.com/phachon/wmqx/releases) 
 [![release](https://img.shields.io/github/release/phachon/wmqx.svg?style=flat)](https://github.com/phachon/wmqx/releases) 
 
-WMQX 是一个基于 RabbitMQ 开发的支持 http 协议的 MQ 服务, 他的前身是 [wmq](https://github.com/snail007/wmq), 感谢他的作者同时也是我的好友 [snail007](https://github.com/snail007) , 当然，你也可以理解为 WMQX 是 wmq 的升级版。
+WMQX 是一个基于 RabbitMQ 开发的支持 http 协议的 MQ 服务, 他的前身是 [wmq](https://github.com/snail007/wmq), 由于在代码架构、实现方式上区别较大，所以新建了项目叫 WMQX，在此感谢他的作者同时也是我的好友 [snail007](https://github.com/snail007), 当然，你也可以理解为 WMQX 是 wmq 的升级版。
 
 ## 为什么需要 WMQX?
 
@@ -40,7 +40,6 @@ RabbitMQ 是一个轻量级的，易于部署在本地和云上，支持多个�
 3. 对于第一次使用 MQ 或者不清楚 RabbitMQ 原理的用户，不需要去深入了解 RabbitMQ 的使用和编码实现，只需要通过 http 的方式接入服务，即可快速使用消息队列。 
 
 > 所以 WMQX 也就由此诞生。工作原理如下图所示：
-
 [![wmqx](./docs/images/wmqx.png)](https://github.com/phachon/wmqx)
 
 ## 功能
@@ -77,7 +76,7 @@ vhost = "/"
 
 # 启动
 $ ./wmqx 
-# 指定配置文件路径启动
+# 当然，你也可以指定配置文件路径启动
 $ ./wmqx --conf wmqx.conf
 ```
 
