@@ -11,6 +11,8 @@
 
 WMQX is a support http protocol MQ service based on RabbitMQ development, his predecessor was [wmq](https://github.com/snail007/wmq), Because of the differences in code architecture and implementation, a new project is created called WMQX. I am here to thank his author and my friend [snail007](https://github.com/snail007). Of course, you can also understand that WMQX is an enhanced version of wmq.
 
+[中文文档](README_CN.md)
+
 # Why need WMQX?
 RabbitMQ is a lightweight messaging queue middleware that is easy to deploy locally and in the cloud and supports multiple messaging protocols. RabbitMQ can be used in many scenarios and supports multiple language SDK. Usually you use RabbitMQ like this: 
 
