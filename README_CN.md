@@ -88,9 +88,11 @@ $ ./wmqx --conf wmqx.conf
 
 [发布消息Api文档](https://github.com/phachon/wmqx/wiki/publish)
 
-[发布消息SDK](https://github.com/phachon/wmqx/wiki/publish)
+[发布消息SDK]()
+- [PHP](https://github.com/phachon/wmqx/wiki/publish_sdk)
+- [Go](https://github.com/phachon/wmqx/wiki/publish_go)
 
-[发布消息示例](./docs/publish)
+[其他使用示例](./docs/examples)
 
 ## 贡献
 

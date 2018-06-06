@@ -145,6 +145,11 @@ func (w *worker) startConsumerProcess(processMessage *message.ConsumerProcessMes
 		for {
 			select {
 			case d := <-delivery:
+				if len(d.Body) == 0 {
+					app.Log.Error("Consumer "+processMessage.Key+" receive message body is null")
+					d.Ack(false)
+					continue
+				}
 				// update consumer last_time
 				Ctx.ConsumerProcess.UpdateProcessByKey(processMessage.Key, time.Now().Unix())
 				publishMsg := message.NewPublishMessage()

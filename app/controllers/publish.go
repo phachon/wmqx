@@ -80,5 +80,5 @@ func (this *PublishController) Publish(ctx *fasthttp.RequestCtx) {
 	}
 
 	app.Log.Infof("message %s publish message %s success!", exchangeName, publishMsg.EncodeOriginalString())
-	this.jsonSuccess(ctx, "success", 1)
+	this.jsonSuccess(ctx, "success", nil)
 }

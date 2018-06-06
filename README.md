@@ -89,9 +89,11 @@ $ ./wmqx --conf wmqx.conf
 
 [Publish Api Documents](https://github.com/phachon/wmqx/wiki/publish)
 
-[Publish SDK](https://github.com/phachon/wmqx/wiki/publish)
+[Publish SDK]()
+- [PHP](https://github.com/phachon/wmqx/wiki/publish_sdk)
+- [Go](https://github.com/phachon/wmqx/wiki/publish_go)
 
-[Publish Example](./docs/publish)
+[Use Example](./docs/examples)
 
 ## Contribution
 
