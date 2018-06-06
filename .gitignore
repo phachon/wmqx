@@ -4,3 +4,4 @@ wmqx
 *.log.fasthttp.gz
 message.json
 wmqx.toml
+release*
