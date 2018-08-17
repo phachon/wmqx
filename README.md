@@ -9,67 +9,68 @@
 [![download_count](https://img.shields.io/github/downloads/phachon/wmqx/total.svg?style=plastic)](https://github.com/phachon/wmqx/releases) 
 [![release](https://img.shields.io/github/release/phachon/wmqx.svg?style=flat)](https://github.com/phachon/wmqx/releases) 
 
-WMQX is a support http protocol MQ service based on RabbitMQ development, his predecessor was [wmq](https://github.com/snail007/wmq), Because of the differences in code architecture and implementation, a new project is created called WMQX. I am here to thank his author and my friend [snail007](https://github.com/snail007). Of course, you can also understand that WMQX is an enhanced version of wmq.
+WMQX 是一个基于 RabbitMQ 开发的支持 http 协议的 MQ 消息推送服务, 他的前身是 [wmq](https://github.com/snail007/wmq), 由于在代码架构、实现方式上区别较大，所以新建了项目叫 WMQX，在此感谢他的作者同时也是我的好友 [snail007](https://github.com/snail007), 当然，你也可以理解为 WMQX 是 wmq 的升级版。
 
-[中文文档](README_CN.md)
+[English Document](README_EN.md)
 
-## Why need WMQX?
-RabbitMQ is a lightweight messaging queue middleware that is easy to deploy locally and in the cloud and supports multiple messaging protocols. RabbitMQ can be used in many scenarios and supports multiple language SDK. Usually you use RabbitMQ like this: 
+## 为什么需要 WMQX?
 
-1. As a productor：
-    - Write code to connect to RabbitMQ and open a channel.
-    - Write code to declare an exchange and set related properties.
-    - Write code to declare a queue and set the associated properties.
-    - Writing code USES routing key to establish a binding relationship between exchange and queue.
-    - Write code to send messages to RabbitMQ.
-2. As a consumer：
-    - Write code to connect to RabbitMQ, open a channel, start the consuming process, wait for the message to be received, and process the consuming business logic.
+### RabbitMQ 的使用
+RabbitMQ 是一个轻量级的，易于部署在本地和云上，支持多个消息传递协议的消息队列中间件。RabbitMQ 可以应用于许多的场景中，同时也支持多种语言的 SDK。通常你会这样使用 RabbitMQ：
+ 
+1. 作为生产者：
+    - 编写代码连接到 RabbitMQ，并打开一个 channel。
+    - 编写代码声明一个 exchange，并设置相关属性。
+    - 编写代码声明一个 queue，并设置相关属性。
+    - 编写代码使用 routing key，在 exchange 和 queue 之间建立好绑定关系。
+    - 编写代码发送消息到 RabbitMQ。
+2. 作为消费者：
+    - 编写代码连接到 RabbitMQ，并打开一个 channel, 开启消费进程，等待接收到消息后，处理消费的业务逻辑。
     
-As shown in the figure below:
+如下图所示：
 [![RabbitMQ](./docs/images/rabbitmq.png)](https://github.com/phachon/wmqx)
 
-### Problems encountered：
-1. RabbitMQ connections, Exchange, Queue declarations and modifications are coupled with business code, increasing the cost of development and maintenance.
-2. When modifying the consumer's business logic, you may need to restart the consumption process frequently.
-3. For first-time users of MQ, it takes time and labor to understand how RabbitMQ works and write code for production and consumption.
-4. ...
+### 遇到的问题：
+1. RabbitMQ 的连接、Exchange、Queue 的声明和修改和业务代码耦合在一起，增加了开发和维护的成本。
+2. 当修改消费者的业务逻辑，可能会需要频繁的重启消费进程。
+3. 对于第一次使用 MQ 的用户，去理解 RabbitMQ 的原理和编写代码实现生产和消费是需要一定的时间和人力成本。
+4. 。。。
 
-### Solution and implementation：
-1. Pull out the connection of RabbitMQ, the declaration of Exchange, Queue and other non-business operations to provide services separately, and the operation of Exchange and Queue is provided to users in a friendly API.
-2. To help the user implement the consuming process of each message, the user only needs to provide the API interface of the consumer, and the consuming process calls the corresponding consumer API after waiting for the message. The consumer business logic changes, only the API needs to be modified, and the consumer process does not need to be restarted.
-3. For the first time using the MQ or not clear the principle of the RabbitMQ users, don't need to understand the use of the RabbitMQ and coded, need only through the HTTP access services, can be quickly using the message queue.
+### 解决与实现：
+1. 将 RabbitMQ 的连接、Exchange、Queue 的声明和修改删除等一些和业务无关的操作抽离出来单独提供服务，Exchange、queue 的操作以友好的 API 的方式提供给用户。
+2. 帮助用户去实现每一个消息的消费进程，用户只需要提供消费者的 API 接口，消费进程等待有消息后调用对应的消费者 API。消费者业务逻辑修改，只需要修改 API, 消费进程无需重启。
+3. 对于第一次使用 MQ 或者不清楚 RabbitMQ 原理的用户，不需要去深入了解 RabbitMQ 的使用和编码实现，只需要通过 http 的方式接入服务，即可快速使用消息队列。 
 
-> So WMQX was born. The working principle is as follows:
+> 所以 WMQX 也就由此诞生。工作原理如下图所示：
 
 [![wmqx](./docs/images/wmqx.png)](https://github.com/phachon/wmqx)
 
-## Feature
-1. There is no need to connect to RabbitMQ, providing a high-performance, highly available HTTP interface to manage messages
-2. To help users realize the consumption process, they only need to add the corresponding consumer API through the interface to realize the consumption or message push
-3. Each consumer is handled by a separate goroutine, and consumers consume each other independently
-4. Simple and convenient deployment, support cross-platform deployment, low use and access costs
-5. The WMQX consuming process forwards the original request information to the corresponding consumer URL by sending the message through the HTTP publishing interface
-6. Provide a complete set of background management UI, see [WMQX-UI](https://github.com/phachon/wmqx-ui)
+## 功能
+1. 无需连接 RabbitMQ，提供高性能，高可用的 http 接口来对消息进行管理
+2. 帮助用户实现消费进程，只需要通过接口添加对应的消费者 api 即可实现消费或消息推送
+3. 每一个消费者由单独的 goroutine 处理，消费者相互独立消费
+4. 部署简单方便，支持跨平台部署，使用和接入成本低
+5. 通过 http 的发布接口发送消息，WMQX 消费进程将原始请求信息转发到对应的消费者URL
+6. 提供一套完善的后台管理 UI, 项目 [WMQX-UI](https://github.com/phachon/wmqx-ui)
 
-## Install
+## 安装
 
 ### RabbitMQ
-If you don't have a RabbitMQ service, you'll need to install it yourself, which is pretty simple, see [http://www.rabbitmq.com/download.html](http://www.rabbitmq.com/download.html)
+如果你没有 RabbitMQ 服务的话，你需要自行安装，安装方法非常简单， [http://www.rabbitmq.com/download.html](http://www.rabbitmq.com/download.html)
 
 ### WMQX
-Download the latest binary from [https://github.com/phachon/wmqx/releases](https://github.com/phachon/wmqx/releases)
+下载最新的二进制程序，[https://github.com/phachon/wmqx/releases](https://github.com/phachon/wmqx/releases)
 ```shell
-# Unpack 
+# 解压
 $ tar -zxvf wmqx-linux-amd64.tar.gz
 ```
 
-## Start Run
-
+## 运行
 ```
-# The default configuration file use wmqx.conf in the current directory
+# 默认的配置文件使用当前目录下的 wmqx.conf
 $ cp config.toml wmqx.toml
 
-# config wmqx.conf
+# 配置 wmqx.conf
 [rabbitmq]
 host = "RabbitMQ Server Ip"
 port = 5672
@@ -77,35 +78,35 @@ username = "test"
 password = "123456"
 vhost = "/"
 
-# start run
+# 启动
 $ ./wmqx 
-# Of course, you can also specify the configuration file path to start
+# 当然，你也可以指定配置文件路径启动
 $ ./wmqx --conf wmqx.conf
 ```
 
-## Using document
+## 使用文档
 
-[Manage Api Documents](https://github.com/phachon/wmqx/wiki/message)
+[管理消息Api文档](https://github.com/phachon/wmqx/wiki/message)
 
-[Publish Api Documents](https://github.com/phachon/wmqx/wiki/publish)
+[发布消息Api文档](https://github.com/phachon/wmqx/wiki/publish)
 
-[Publish SDK]()
+[发布消息SDK]()
 - [PHP](https://github.com/phachon/wmqx/wiki/publish_sdk)
 - [Go](https://github.com/phachon/wmqx/wiki/publish_go)
 
-[Use Example](./docs/_examples)
+[其他使用示例](./docs/_examples)
 
-## Contribution
+## 贡献
 
-see [Contribution](https://github.com/phachon/wmqx/graphs/contributors)
+[贡献列表](https://github.com/phachon/wmqx/graphs/contributors)
 
-## Feedback
+## 反馈
 
-- If you like the project, please [Start](https://github.com/phachon/wmqx/stargazers).
-- If you have any problems in the process of use, welcome submit [Issue](https://github.com/phachon/wmqx/issues).
-- If you find and solve bug, welcome submit [Pull Request](https://github.com/phachon/wmqx/pulls).
-- If you want to redevelop, welcome [Fork](https://github.com/phachon/wmqx/network/members).
-- If you want to make a friend, welcome send email to [phachon@163.com](mailto:phachon@163.com).
+- 如果您喜欢该项目，请 [Start](https://github.com/phachon/wmqx/stargazers).
+- 如果在使用过程中有任何问题， 请提交 [Issue](https://github.com/phachon/wmqx/issues).
+- 如果您发现并解决了bug，请提交 [Pull Request](https://github.com/phachon/wmqx/pulls).
+- 如果您想二次开发，欢迎 [Fork](https://github.com/phachon/wmqx/network/members).
+- 如果你想交个朋友，欢迎发邮件给 [phachon@163.com](mailto:phachon@163.com).
 
 ## License
 
