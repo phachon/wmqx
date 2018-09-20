@@ -101,7 +101,7 @@ see [Contribution](https://github.com/phachon/wmqx/graphs/contributors)
 
 ## Feedback
 
-- If you like the project, please [Start](https://github.com/phachon/wmqx/stargazers).
+- If you like the project, please [Star](https://github.com/phachon/wmqx/stargazers).
 - If you have any problems in the process of use, welcome submit [Issue](https://github.com/phachon/wmqx/issues).
 - If you find and solve bug, welcome submit [Pull Request](https://github.com/phachon/wmqx/pulls).
 - If you want to redevelop, welcome [Fork](https://github.com/phachon/wmqx/network/members).

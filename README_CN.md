@@ -102,7 +102,7 @@ $ ./wmqx --conf wmqx.conf
 
 ## 反馈
 
-- 如果您喜欢该项目，请 [Start](https://github.com/phachon/wmqx/stargazers).
+- 如果您喜欢该项目，请 [Star](https://github.com/phachon/wmqx/stargazers).
 - 如果在使用过程中有任何问题， 请提交 [Issue](https://github.com/phachon/wmqx/issues).
 - 如果您发现并解决了bug，请提交 [Pull Request](https://github.com/phachon/wmqx/pulls).
 - 如果您想二次开发，欢迎 [Fork](https://github.com/phachon/wmqx/network/members).
