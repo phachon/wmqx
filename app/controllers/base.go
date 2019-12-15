@@ -1,20 +1,19 @@
 package controllers
 
 import (
-	"github.com/valyala/fasthttp"
 	"encoding/json"
+	"github.com/phachon/wmqx/app"
+	"github.com/valyala/fasthttp"
 	"strconv"
-	"wmqx/app"
 )
 
 type BaseController struct {
-
 }
 
 type JsonResult struct {
-	Code int `json:"code"`
+	Code    int         `json:"code"`
 	Message interface{} `json:"message"`
-	Data interface{} `json:"data"`
+	Data    interface{} `json:"data"`
 }
 
 // get request content text string
@@ -75,7 +74,7 @@ func (baseService *BaseController) jsonResult(ctx *fasthttp.RequestCtx, code int
 		data = map[string]string{}
 	}
 
-	res := JsonResult {
+	res := JsonResult{
 		Code:    code,
 		Message: message,
 		Data:    data,

@@ -1,0 +1,12 @@
+
+# output
+/dist/
+/tmp/
+
+# dependencies
+/bower_components/
+/node_modules/
+
+# misc
+*.exe
+*.log

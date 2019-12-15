@@ -1,10 +1,10 @@
 package utils
 
 import (
-	"os"
 	"io/ioutil"
-	"strings"
+	"os"
 	"path/filepath"
+	"strings"
 )
 
 var File = NewFile()
@@ -14,7 +14,6 @@ func NewFile() *file {
 }
 
 type file struct {
-	
 }
 
 // file or path is exists
@@ -40,7 +39,6 @@ func (f *file) ReadAll(path string) (data string, err error) {
 	fd, err := ioutil.ReadAll(fi)
 	return string(fd), nil
 }
-
 
 // write file
 func (f *file) WriteFile(filename string, data string) (err error) {

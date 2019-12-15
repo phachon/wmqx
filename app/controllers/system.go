@@ -1,10 +1,10 @@
 package controllers
 
 import (
+	"github.com/phachon/wmqx/app"
+	"github.com/phachon/wmqx/app/service"
+	"github.com/phachon/wmqx/container"
 	"github.com/valyala/fasthttp"
-	"wmqx/app/service"
-	"wmqx/app"
-	"wmqx/container"
 	"time"
 )
 
@@ -53,7 +53,7 @@ func (this *SystemController) Reload(ctx *fasthttp.RequestCtx) {
 
 	err := container.Ctx.InitExchanges()
 	if err != nil {
-		app.Log.Error("wmqx reload error: "+err.Error())
+		app.Log.Error("wmqx reload error: " + err.Error())
 		this.jsonError(ctx, "Reload error: "+err.Error(), nil)
 		return
 	}

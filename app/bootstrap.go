@@ -1,22 +1,22 @@
 package app
 
 import (
+	"flag"
+	"github.com/fatih/color"
+	"github.com/phachon/go-logger"
 	"github.com/spf13/viper"
 	"os"
-	"flag"
-	"github.com/phachon/go-logger"
 	"strings"
-	"github.com/fatih/color"
 )
 
 // app bootstrap init
 
 var (
-	flagConf = flag.String("conf", "wmqx.toml", "please input conf path")
+	flagConf = flag.String("conf", "conf/wmqx.toml", "please input conf path")
 )
 
 var (
-	Version = "v0.1"
+	Version = "v0.1.1"
 
 	author = "phachon"
 
@@ -32,7 +32,7 @@ var (
 )
 
 // 启动初始化
-func init()  {
+func init() {
 	initFlag()
 	initPath()
 	initConfig()
@@ -67,7 +67,7 @@ func initPath() {
 }
 
 // init config
-func initConfig()  {
+func initConfig() {
 
 	if *flagConf == "" {
 		Log.Error("config file not found!")
@@ -78,12 +78,12 @@ func initConfig()  {
 	Conf.SetConfigFile(*flagConf)
 	err := Conf.ReadInConfig()
 	if err != nil {
-		Log.Error("Fatal error config file: "+err.Error())
+		Log.Error("Fatal error config file: " + err.Error())
 		os.Exit(1)
 	}
 
 	file := Conf.ConfigFileUsed()
-	if(file != "") {
+	if file != "" {
 		Log.Info("Use config file: " + file)
 	}
 }
@@ -96,7 +96,7 @@ func initLog() {
 	// console adapter config
 	consoleLevelStr := Conf.GetString("log.console.level")
 	consoleConfig := &go_logger.ConsoleConfig{
-		Color: Conf.GetBool("log.console.color"), // show text color
+		Color:      Conf.GetBool("log.console.color"),      // show text color
 		JsonFormat: Conf.GetBool("log.console.jsonFormat"), // text json format
 	}
 	Log.Attach("console", Log.LoggerLevel(consoleLevelStr), consoleConfig)
@@ -112,12 +112,12 @@ func initLog() {
 		}
 	}
 	fileConfig := &go_logger.FileConfig{
-		Filename:  Conf.GetString("log.file.filename"),
-		LevelFileName : levelFilename,
-		MaxSize: Conf.GetInt64("log.file.maxSize"),
-		MaxLine: Conf.GetInt64("log.file.maxLine"),
-		DateSlice: Conf.GetString("log.file.dateSlice"),
-		JsonFormat: Conf.GetBool("log.file.jsonFormat"),
+		Filename:      Conf.GetString("log.file.filename"),
+		LevelFileName: levelFilename,
+		MaxSize:       Conf.GetInt64("log.file.maxSize"),
+		MaxLine:       Conf.GetInt64("log.file.maxLine"),
+		DateSlice:     Conf.GetString("log.file.dateSlice"),
+		JsonFormat:    Conf.GetBool("log.file.jsonFormat"),
 	}
 	Log.Attach("file", Log.LoggerLevel(fileLevelStr), fileConfig)
 }

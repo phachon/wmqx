@@ -1,10 +1,10 @@
 package message
 
 import (
-	"sync"
 	"errors"
+	"github.com/phachon/wmqx/app"
+	"sync"
 	"time"
-	"wmqx/app"
 )
 
 func NewConsumerProcess() *ConsumerProcess {
@@ -13,16 +13,16 @@ func NewConsumerProcess() *ConsumerProcess {
 
 // consumer process
 type ConsumerProcess struct {
-	lock sync.Mutex
+	lock            sync.Mutex
 	ProcessMessages []*ConsumerProcessMessage
 }
 
 // consumer process message
 type ConsumerProcessMessage struct {
-	Key string // key
-	LastTime int64 //last time
-	SignalChan chan string //signal chan
-	ExitAck chan bool // consumer exit ack
+	Key        string      // key
+	LastTime   int64       // last time
+	SignalChan chan string // signal chan
+	ExitAck    chan bool   // consumer exit ack
 }
 
 const Consumer_Sign_Stop = "stop"
@@ -65,10 +65,10 @@ func (cp *ConsumerProcess) AddProcess(consumerKey string) error {
 	}
 
 	process := &ConsumerProcessMessage{
-		Key : consumerKey,
-		LastTime: time.Now().Unix(),
+		Key:        consumerKey,
+		LastTime:   time.Now().Unix(),
 		SignalChan: make(chan string, 1),
-		ExitAck: make(chan bool, 1),
+		ExitAck:    make(chan bool, 1),
 	}
 
 	cp.ProcessMessages = append(cp.ProcessMessages, process)
@@ -117,11 +117,11 @@ func (cp *ConsumerProcess) StopProcessByKey(consumerKey string) error {
 		return err
 	}
 
-	process.SignalChan<-Consumer_Sign_Stop
+	process.SignalChan <- Consumer_Sign_Stop
 
 	ok := <-process.ExitAck
 	if ok == true {
-		app.Log.Info("consumer "+consumerKey+" process ack exit!")
+		app.Log.Info("consumer " + consumerKey + " process ack exit!")
 		cp.DeleteProcessByKey(consumerKey)
 	}
 	return nil

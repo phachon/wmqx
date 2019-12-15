@@ -1,8 +1,8 @@
 package service
 
 import (
-	"wmqx/container"
 	"errors"
+	"github.com/phachon/wmqx/container"
 )
 
 var MQ = NewMQ()
@@ -12,7 +12,6 @@ func NewMQ() *MqService {
 }
 
 type MqService struct {
-
 }
 
 // reload RabbitMQ all exchanges
@@ -31,19 +30,19 @@ func (s *MqService) ReloadExchanges() error {
 		// declare exchange
 		err := rabbitMq.DeclareExchange(msg.Name, msg.Mode, msg.Durable)
 		if err != nil {
-			return errors.New("Declare exchange failed: "+err.Error())
+			return errors.New("Declare exchange failed: " + err.Error())
 		}
 		// declare queue
 		for _, consumer := range msg.Consumers {
 			consumerKey := container.Ctx.GetConsumerKey(msg.Name, consumer.ID)
 			_, err := rabbitMq.DeclareQueue(consumerKey, msg.Durable)
 			if err != nil {
-				return errors.New("Declare queue failed: "+err.Error())
+				return errors.New("Declare queue failed: " + err.Error())
 			}
 			// bind queue to exchange
 			err = rabbitMq.BindQueueToExchange(consumerKey, msg.Name, consumer.RouteKey)
 			if err != nil {
-				return errors.New("Bind queue exchange fail: "+err.Error())
+				return errors.New("Bind queue exchange fail: " + err.Error())
 			}
 		}
 	}
@@ -68,24 +67,24 @@ func (s *MqService) ReloadExchange(messageName string) error {
 	// declare exchange
 	err = rabbitMq.DeclareExchange(message.Name, message.Mode, message.Durable)
 	if err != nil {
-		return errors.New("Declare exchange failed: "+err.Error())
+		return errors.New("Declare exchange failed: " + err.Error())
 	}
 	// declare queue
 	for _, consumer := range message.Consumers {
 		consumerKey := container.Ctx.GetConsumerKey(message.Name, consumer.ID)
 		_, err := rabbitMq.DeclareQueue(consumerKey, message.Durable)
 		if err != nil {
-			return errors.New("Declare queue failed: "+err.Error())
+			return errors.New("Declare queue failed: " + err.Error())
 		}
 		// bind queue to exchange
 		err = rabbitMq.BindQueueToExchange(consumerKey, message.Name, consumer.RouteKey)
 		if err != nil {
-			return errors.New("Bind queue exchange fail: "+err.Error())
+			return errors.New("Bind queue exchange fail: " + err.Error())
 		}
 		// restart consumer process
 		container.Worker.SendConsumerSign(container.Consumer_Action_Insert, consumerKey)
 	}
-	
+
 	return nil
 }
 
@@ -100,7 +99,7 @@ func (s *MqService) DeclareExchange(name string, mode string, durable bool) erro
 	// declare exchange
 	err = rabbitMq.DeclareExchange(name, mode, durable)
 	if err != nil {
-		return errors.New("Declare exchange "+name+" failed: "+err.Error())
+		return errors.New("Declare exchange " + name + " failed: " + err.Error())
 	}
 
 	return nil
@@ -122,7 +121,7 @@ func (s *MqService) DeleteExchange(name string) error {
 			routeKey := consumer.RouteKey
 			err := rabbitMq.UnBindQueueToExchange(consumerKey, name, routeKey)
 			if err != nil {
-				return errors.New("Unbind exchange "+name+" consumer id "+consumer.ID+" failed: "+err.Error())
+				return errors.New("Unbind exchange " + name + " consumer id " + consumer.ID + " failed: " + err.Error())
 			}
 			// stop consumer
 			container.Worker.SendConsumerSign(container.Consumer_Action_Delete, consumerKey)
@@ -131,7 +130,7 @@ func (s *MqService) DeleteExchange(name string) error {
 	// delete exchange
 	err = rabbitMq.DeleteExchange(name)
 	if err != nil {
-		return errors.New("Delete exchange "+name+" failed: "+err.Error())
+		return errors.New("Delete exchange " + name + " failed: " + err.Error())
 	}
 
 	return nil
@@ -155,7 +154,7 @@ func (s *MqService) DeclareConsumer(consumerId string, messageName string, consu
 	// declare consumer
 	err = rabbitMq.DeclareConsumer(consumerKey, message.Durable, messageName, consumerRouteKey)
 	if err != nil {
-		return errors.New("Declare queue failed: "+err.Error())
+		return errors.New("Declare queue failed: " + err.Error())
 	}
 
 	container.Worker.SendConsumerSign(container.Consumer_Action_Insert, consumerKey)
@@ -163,14 +162,14 @@ func (s *MqService) DeclareConsumer(consumerId string, messageName string, consu
 }
 
 // stop consumer and unbind consumer to exchange
-func (s *MqService ) UnbindStopConsumer(consumerId string, messageName string, consumerRouteKey string) error {
+func (s *MqService) UnbindStopConsumer(consumerId string, messageName string, consumerRouteKey string) error {
 
 	consumerKey := container.Ctx.GetConsumerKey(messageName, consumerId)
 
 	// stop consumer
 	err := container.Ctx.ConsumerProcess.StopProcessByKey(consumerKey)
 	if err != nil {
-		return errors.New("Stop "+consumerKey+" process failed: "+err.Error())
+		return errors.New("Stop " + consumerKey + " process failed: " + err.Error())
 	}
 
 	rabbitMq, err := container.Ctx.RabbitMQPools.GetMQ()
@@ -182,12 +181,12 @@ func (s *MqService ) UnbindStopConsumer(consumerId string, messageName string, c
 	// unbind queue to exchange
 	err = rabbitMq.UnBindQueueToExchange(consumerKey, messageName, consumerRouteKey)
 	if err != nil {
-		return errors.New("Unbind exchange "+messageName+" consumer id "+consumerId+" failed: "+err.Error())
+		return errors.New("Unbind exchange " + messageName + " consumer id " + consumerId + " failed: " + err.Error())
 	}
 	// delete queue
 	err = rabbitMq.DeleteQueue(consumerKey)
 	if err != nil {
-		return errors.New("Delete exchange "+messageName+" consumer id "+consumerId+" failed: "+err.Error())
+		return errors.New("Delete exchange " + messageName + " consumer id " + consumerId + " failed: " + err.Error())
 	}
 	return nil
 }
@@ -201,7 +200,7 @@ func (s *MqService) CountConsumerMessages(consumerId string, messageName string)
 	}
 	defer container.Ctx.RabbitMQPools.Recover(rabbitMq)
 
-	message, err:= container.Ctx.QMessage.GetMessageByName(messageName)
+	message, err := container.Ctx.QMessage.GetMessageByName(messageName)
 	if err != nil {
 		return 0, err
 	}
@@ -213,7 +212,7 @@ func (s *MqService) CountConsumerMessages(consumerId string, messageName string)
 }
 
 // stop all consumer
-func (s *MqService) StopAllConsumer()  {
+func (s *MqService) StopAllConsumer() {
 
 	messages := container.Ctx.QMessage.GetMessages()
 	if len(messages) > 0 {
@@ -243,7 +242,7 @@ func (s *MqService) Publish(body string, exchangeName string, token string, rout
 
 	rabbitMq, err := container.Ctx.RabbitMQPools.GetMQ()
 	if err != nil {
-		return errors.New("rabbitmq pools failed: "+err.Error())
+		return errors.New("rabbitmq pools failed: " + err.Error())
 	}
 	defer container.Ctx.RabbitMQPools.Recover(rabbitMq)
 

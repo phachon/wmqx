@@ -1,12 +1,12 @@
 package controllers
 
 import (
-	"github.com/valyala/fasthttp"
 	"github.com/nu7hatch/gouuid"
-	"wmqx/container"
-	"wmqx/message"
-	"wmqx/app/service"
-	"wmqx/app"
+	"github.com/phachon/wmqx/app"
+	"github.com/phachon/wmqx/app/service"
+	"github.com/phachon/wmqx/container"
+	"github.com/phachon/wmqx/message"
+	"github.com/valyala/fasthttp"
 )
 
 type ConsumerController struct {
@@ -29,8 +29,8 @@ func (this *ConsumerController) Add(ctx *fasthttp.RequestCtx) {
 	comment := this.GetCtxString(ctx, "comment")
 	checkCode := this.GetCtxBool(ctx, "check_code")
 	code := this.GetCtxFloat64(ctx, "code")
-	routeKey := this.GetCtxString(ctx,"route_key")
-	timeout:= this.GetCtxFloat64(ctx, "timeout")
+	routeKey := this.GetCtxString(ctx, "route_key")
+	timeout := this.GetCtxFloat64(ctx, "timeout")
 	url := this.GetCtxString(ctx, "url")
 
 	if exchangeName == "" || timeout == 0 || url == "" {
@@ -50,30 +50,30 @@ func (this *ConsumerController) Add(ctx *fasthttp.RequestCtx) {
 
 	uuId, _ := uuid.NewV4()
 	consumer := &message.Consumer{
-		ID: uuId.String(),
-		URL: url,
-		RouteKey: routeKey,
-		Timeout: timeout,
-		Code: code,
+		ID:        uuId.String(),
+		URL:       url,
+		RouteKey:  routeKey,
+		Timeout:   timeout,
+		Code:      code,
 		CheckCode: checkCode,
-		Comment: comment,
+		Comment:   comment,
 	}
 	// declare queue and bind consumer to exchange
 	err := service.MQ.DeclareConsumer(consumer.ID, exchangeName, routeKey)
 	if err != nil {
-		app.Log.Error("Add Consumer faild: "+err.Error())
+		app.Log.Error("Add Consumer faild: " + err.Error())
 		this.jsonError(ctx, "add consumer faild: "+err.Error(), nil)
 		return
 	}
 	// add a consumer to QMessage
 	err = container.Ctx.QMessage.AddConsumer(exchangeName, consumer)
 	if err != nil {
-		app.Log.Error("Add Consumer faild: "+err.Error())
+		app.Log.Error("Add Consumer faild: " + err.Error())
 		this.jsonError(ctx, "add consumer faild: "+err.Error(), nil)
 		return
 	}
 
-	app.Log.Info("add consumer success, message: "+exchangeName+" consumer_id: "+consumer.ID)
+	app.Log.Info("add consumer success, message: " + exchangeName + " consumer_id: " + consumer.ID)
 	this.jsonSuccess(ctx, "success", nil)
 }
 
@@ -83,16 +83,16 @@ func (this *ConsumerController) Update(ctx *fasthttp.RequestCtx) {
 		this.jsonError(ctx, "token error", nil)
 		return
 	}
-	
+
 	consumerId := this.GetCtxString(ctx, "consumer_id")
 	exchangeName := this.GetCtxString(ctx, "name")
 	comment := this.GetCtxString(ctx, "comment")
 	checkCode := this.GetCtxBool(ctx, "check_code")
 	code := this.GetCtxFloat64(ctx, "code")
-	routeKey := this.GetCtxString(ctx,"route_key")
-	timeout:= this.GetCtxFloat64(ctx, "timeout")
+	routeKey := this.GetCtxString(ctx, "route_key")
+	timeout := this.GetCtxFloat64(ctx, "timeout")
 	url := this.GetCtxString(ctx, "url")
-	
+
 	if consumerId == "" || exchangeName == "" || timeout == 0 || url == "" {
 		this.jsonError(ctx, "param require!", nil)
 		return
@@ -110,37 +110,37 @@ func (this *ConsumerController) Update(ctx *fasthttp.RequestCtx) {
 	}
 
 	consumer := &message.Consumer{
-		ID: consumerId,
-		URL: url,
-		RouteKey: routeKey,
-		Timeout: timeout,
-		Code: code,
+		ID:        consumerId,
+		URL:       url,
+		RouteKey:  routeKey,
+		Timeout:   timeout,
+		Code:      code,
 		CheckCode: checkCode,
-		Comment: comment,
+		Comment:   comment,
 	}
 	// unbind consumer and stop consumer
 	err := service.MQ.UnbindStopConsumer(consumer.ID, exchangeName, routeKey)
 	if err != nil {
-		app.Log.Error("Update message "+exchangeName+" consumer "+consumerId+" faild: "+err.Error())
+		app.Log.Error("Update message " + exchangeName + " consumer " + consumerId + " faild: " + err.Error())
 		this.jsonError(ctx, "update consumer faild: "+err.Error(), nil)
 		return
 	}
 	// declare queue and bind consumer to exchange
 	err = service.MQ.DeclareConsumer(consumer.ID, exchangeName, routeKey)
 	if err != nil {
-		app.Log.Error("Update message "+exchangeName+" consumer "+consumerId+" faild: "+err.Error())
+		app.Log.Error("Update message " + exchangeName + " consumer " + consumerId + " faild: " + err.Error())
 		this.jsonError(ctx, "update consumer faild: "+err.Error(), nil)
 		return
 	}
 	// update a consumer to QMessage
 	err = container.Ctx.QMessage.UpdateConsumerByName(exchangeName, consumer)
 	if err != nil {
-		app.Log.Error("Update message "+exchangeName+" consumer "+consumerId+" faild: "+err.Error())
+		app.Log.Error("Update message " + exchangeName + " consumer " + consumerId + " faild: " + err.Error())
 		this.jsonError(ctx, "udpate consumer failed: "+err.Error(), nil)
 		return
 	}
 
-	app.Log.Info("Update message "+exchangeName+" consumer "+consumerId+" success")
+	app.Log.Info("Update message " + exchangeName + " consumer " + consumerId + " success")
 	this.jsonSuccess(ctx, "success", nil)
 }
 
@@ -169,16 +169,16 @@ func (this *ConsumerController) Delete(ctx *fasthttp.RequestCtx) {
 	// No need to be deleted queue, queue no consumer is auto delete
 	consumerKey := container.Ctx.GetConsumerKey(exchangeName, consumerId)
 	container.Worker.SendConsumerSign(container.Consumer_Action_Delete, consumerKey)
-	
-	 // delete a consumer to QMessage
+
+	// delete a consumer to QMessage
 	err := container.Ctx.QMessage.DeleteConsumerByNameAndId(exchangeName, consumerId)
 	if err != nil {
-		app.Log.Error("Delete message "+exchangeName+" consumer "+consumerId+" faild: "+err.Error())
+		app.Log.Error("Delete message " + exchangeName + " consumer " + consumerId + " faild: " + err.Error())
 		this.jsonError(ctx, "delete consumer failed: "+err.Error(), nil)
 		return
 	}
 
-	app.Log.Info("Delete message "+exchangeName+" consumer "+consumerId+" success")
+	app.Log.Info("Delete message " + exchangeName + " consumer " + consumerId + " success")
 	this.jsonSuccess(ctx, "ok", nil)
 }
 
@@ -218,11 +218,11 @@ func (this *ConsumerController) Status(ctx *fasthttp.RequestCtx) {
 		return
 	}
 	data := map[string]interface{}{
-		"name": name,
+		"name":        name,
 		"consumer_id": consumerId,
-		"status": 0,
-		"last_time": 0,
-		"count": count,
+		"status":      0,
+		"last_time":   0,
+		"count":       count,
 	}
 
 	consumerProcess := container.Ctx.ConsumerProcess.ProcessMessages

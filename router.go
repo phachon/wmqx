@@ -2,11 +2,10 @@ package main
 
 import (
 	"github.com/buaazp/fasthttprouter"
-	"wmqx/app/controllers"
+	"github.com/phachon/wmqx/app/controllers"
 )
 
 type Router struct {
-
 }
 
 // return router

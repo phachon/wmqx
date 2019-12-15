@@ -1,10 +1,10 @@
 package message
 
 import (
-	"errors"
-	"encoding/json"
 	"bytes"
-	"wmqx/utils"
+	"encoding/json"
+	"errors"
+	"github.com/phachon/wmqx/utils"
 )
 
 const QMessage_Record_Type = "file"
@@ -14,7 +14,7 @@ type RecordFile struct {
 }
 
 type RecordFileConfig struct {
-	Filename string
+	Filename     string
 	JsonBeautify bool
 }
 
@@ -73,6 +73,6 @@ func (r *RecordFile) Clean() error {
 	return err
 }
 
-func init()  {
+func init() {
 	Register(QMessage_Record_Type, NewRecordFile)
 }

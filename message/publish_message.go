@@ -1,8 +1,8 @@
 package message
 
 import (
-	"encoding/json"
 	"encoding/base64"
+	"encoding/json"
 )
 
 func NewPublishMessage() *PublishMessage {
@@ -11,10 +11,10 @@ func NewPublishMessage() *PublishMessage {
 
 type PublishMessage struct {
 	Header map[string]string `json:"header"`
-	Ip string `json:"ip"`
-	Body string `json:"body"`
-	Method string `json:"method"`
-	Args string `json:"args"`
+	Ip     string            `json:"ip"`
+	Body   string            `json:"body"`
+	Method string            `json:"method"`
+	Args   string            `json:"args"`
 }
 
 // json encode publish message
@@ -39,7 +39,7 @@ func (pmg *PublishMessage) Decode(publishMsg string) (*PublishMessage, error) {
 }
 
 // publish message Body original encode
-func (pmg *PublishMessage) EncodeOriginalString() (string) {
+func (pmg *PublishMessage) EncodeOriginalString() string {
 	// body base64 decode
 	requestBody, err := base64.StdEncoding.DecodeString(pmg.Body)
 	if err != nil {
@@ -51,7 +51,7 @@ func (pmg *PublishMessage) EncodeOriginalString() (string) {
 }
 
 // publish message Body no base64 encode
-func (pmg *PublishMessage) OriginalString() (string) {
+func (pmg *PublishMessage) OriginalString() string {
 	b, _ := json.Marshal(pmg)
 	return string(b)
 }

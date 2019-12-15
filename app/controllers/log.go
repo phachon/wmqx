@@ -1,16 +1,16 @@
 package controllers
 
 import (
-	"github.com/valyala/fasthttp"
-	"wmqx/app"
-	"runtime"
-	"wmqx/utils"
-	"fmt"
-	"os/exec"
 	"bytes"
-	"strings"
-	"path/filepath"
+	"fmt"
+	"github.com/phachon/wmqx/app"
+	"github.com/phachon/wmqx/utils"
+	"github.com/valyala/fasthttp"
 	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
+	"strings"
 )
 
 type LogController struct {
@@ -47,7 +47,7 @@ func (this *LogController) Search(ctx *fasthttp.RequestCtx) {
 				filename = levelFilename
 			}
 		}
-	}else {
+	} else {
 		filename = app.Conf.GetString("log.file.filename")
 	}
 
@@ -65,7 +65,7 @@ func (this *LogController) Search(ctx *fasthttp.RequestCtx) {
 				this.jsonError(ctx, "read log lines error: "+err.Error(), nil)
 				return
 			}
-		}else {
+		} else {
 			command := fmt.Sprintf("tail -n %d %s |tac", number, filename)
 			cmd := exec.Command("bash", "-c", command)
 			stdOut := &bytes.Buffer{}
@@ -80,7 +80,7 @@ func (this *LogController) Search(ctx *fasthttp.RequestCtx) {
 			logs = strings.Split(stdOut.String(), "\n")
 		}
 
-	}else {
+	} else {
 		if runtime.GOOS == "windows" {
 			this.jsonError(ctx, "windows not support keyword search", nil)
 			return
@@ -157,7 +157,7 @@ func (this *LogController) Download(ctx *fasthttp.RequestCtx) {
 	}
 	logDir := filepath.Dir(dir)
 
-	filePath := logDir+"/"+filename
+	filePath := logDir + "/" + filename
 
 	ok, _ := utils.File.PathExists(filePath)
 	if ok == false {
@@ -175,5 +175,3 @@ func (this *LogController) Download(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Content-Transfer-Encoding", "binary")
 	ctx.SendFile(filePath)
 }
-
-

@@ -1,23 +1,23 @@
 package container
 
 import (
-	"wmqx/message"
-	"wmqx/pools"
 	"errors"
-	"strings"
-	"net/http"
-	"wmqx/app"
-	"time"
+	"github.com/phachon/wmqx/app"
+	"github.com/phachon/wmqx/message"
+	"github.com/phachon/wmqx/pools"
 	"io/ioutil"
+	"net/http"
 	"strconv"
+	"strings"
+	"time"
 )
 
 var Ctx = NewContext()
 
 func NewContext() *Context {
 	return &Context{
-		QMessage:&message.QMessage{},
-		RabbitMQPools: &pools.RabbitMQ{},
+		QMessage:        &message.QMessage{},
+		RabbitMQPools:   &pools.RabbitMQ{},
 		ConsumerProcess: message.NewConsumerProcess(),
 	}
 }
@@ -35,22 +35,22 @@ type Context struct {
 }
 
 // set RabbitMQ pools number and init
-func (ctx *Context) SetRabbitMQPools(n int)  {
+func (ctx *Context) SetRabbitMQPools(n int) {
 	ctx.RabbitMQPools = pools.NewRabbitMQPools()
 	ctx.RabbitMQPools.Init(n)
 }
 
 // get consumerKey by messageName and consumerId
 func (ctx *Context) GetConsumerKey(messageName string, consumerId string) string {
-	return messageName +"_"+ consumerId
+	return messageName + "_" + consumerId
 }
 
 // split consumerKey
-func (ctx *Context) SplitConsumerKey(consumerKey string) (messageName string, consumerId string){
+func (ctx *Context) SplitConsumerKey(consumerKey string) (messageName string, consumerId string) {
 	d := strings.Split(consumerKey, "_")
 	if len(d) == 2 {
 		return d[0], d[1]
-	}else {
+	} else {
 		return "", d[0]
 	}
 }
@@ -71,19 +71,19 @@ func (ctx *Context) InitExchanges() error {
 		// declare exchange
 		err := rabbitMq.DeclareExchange(msg.Name, msg.Mode, msg.Durable)
 		if err != nil {
-			return errors.New("Declare exchange faild: "+err.Error())
+			return errors.New("Declare exchange faild: " + err.Error())
 		}
 		// declare queue
 		for _, consumer := range msg.Consumers {
 			consumerKey := ctx.GetConsumerKey(msg.Name, consumer.ID)
 			_, err := rabbitMq.DeclareQueue(consumerKey, msg.Durable)
 			if err != nil {
-				return errors.New("Declare queue faild: "+err.Error())
+				return errors.New("Declare queue faild: " + err.Error())
 			}
 			// bind queue to exchange
 			err = rabbitMq.BindQueueToExchange(consumerKey, msg.Name, consumer.RouteKey)
 			if err != nil {
-				return errors.New("Bind queue exchange fail: "+err.Error())
+				return errors.New("Bind queue exchange fail: " + err.Error())
 			}
 			Worker.SendConsumerSign(Consumer_Action_Insert, consumerKey)
 		}
@@ -119,9 +119,9 @@ func (ctx *Context) RequestConsumerUrl(consumerKey string, publishMessage *messa
 	var req *http.Request
 	if method == "POST" {
 		req, err = http.NewRequest("POST", url, strings.NewReader(body))
-	}else if method == "GET" {
+	} else if method == "GET" {
 		req, err = http.NewRequest("GET", url, nil)
-	}else {
+	} else {
 		err = errors.New("request method error")
 	}
 	if err != nil {
@@ -130,7 +130,7 @@ func (ctx *Context) RequestConsumerUrl(consumerKey string, publishMessage *messa
 
 	realIpHeader := app.Conf.GetString("publish.realIpHeader")
 	req.Header.Set(realIpHeader, ip)
-	req.Header.Set("User-Agent", "WMQX version" + app.Version + " - https://github.com/phachon/wmqx")
+	req.Header.Set("User-Agent", "WMQX version"+app.Version+" - https://github.com/phachon/wmqx")
 
 	if len(headers) > 0 {
 		for key, value := range headers {
@@ -150,7 +150,7 @@ func (ctx *Context) RequestConsumerUrl(consumerKey string, publishMessage *messa
 		return
 	}
 	if checkCode && (code != float64(respCode)) {
-		err = errors.New("response code error: "+strconv.Itoa(respCode))
+		err = errors.New("response code error: " + strconv.Itoa(respCode))
 		return
 	}
 

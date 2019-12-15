@@ -1,16 +1,16 @@
 package main
 
 import (
-	"wmqx/app"
+	"github.com/phachon/wmqx/app"
+	"github.com/phachon/wmqx/container"
+	"github.com/phachon/wmqx/message"
 	"github.com/valyala/fasthttp"
 	"os"
-	"wmqx/container"
-	"wmqx/message"
 )
 
 // WMQX RabbitMQ Callback
 
-func main()  {
+func main() {
 	initQMessage()
 	initRabbitMQPools()
 	startConsumerWorker()
@@ -27,7 +27,7 @@ func initQMessage() {
 	jsonBeautify := app.Conf.GetBool("message.jsonBeautify")
 
 	fileConfig := &message.RecordFileConfig{
-		Filename: filename,
+		Filename:     filename,
 		JsonBeautify: jsonBeautify,
 	}
 	qm, err := message.NewQMessage(recordType, message.NewRecordConfigFile(fileConfig))
@@ -37,7 +37,7 @@ func initQMessage() {
 	}
 	container.Ctx.QMessage = qm
 
-	app.Log.Info("Init QMessage "+recordType+ " success!")
+	app.Log.Infof("Init QMessage %s success!", recordType)
 }
 
 // init Ctx RabbitMq pools and check rabbitMQ conn
@@ -76,7 +76,7 @@ func startApiServer() {
 			}
 		}()
 		apiListen := app.Conf.GetString("listen.api")
-		app.Log.Info("Api server start listen: "+apiListen +"!")
+		app.Log.Info("Api server start listen: " + apiListen + "!")
 		err := fasthttp.ListenAndServe(apiListen, NewRouter().Api().Handler)
 		if err != nil {
 			app.Log.Errorf("Api server listen failed: %s", err.Error())
@@ -85,10 +85,10 @@ func startApiServer() {
 }
 
 // start publish server
-func startPublishServer()  {
+func startPublishServer() {
 
 	publishListen := app.Conf.GetString("listen.publish")
-	app.Log.Info("Publish Server start listen: "+publishListen+"!")
+	app.Log.Info("Publish Server start listen: " + publishListen + "!")
 	err := fasthttp.ListenAndServe(publishListen, NewRouter().Publish().Handler)
 	if err != nil {
 		app.Log.Errorf("Publish Server listen failed: %s", err.Error())

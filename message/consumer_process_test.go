@@ -69,7 +69,7 @@ func TestConsumerProcess_UpdateProcessByKey(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	time.Sleep(2*time.Second)
+	time.Sleep(2 * time.Second)
 	updateTime := time.Now().Unix()
 	err = cp.UpdateProcessByKey("key1", updateTime)
 	if err != nil {

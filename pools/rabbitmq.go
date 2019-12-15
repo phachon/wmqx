@@ -1,10 +1,11 @@
 package pools
 
 import (
-	"github.com/jolestar/go-commons-pool"
-	"wmqx/mq"
+	"context"
 	"fmt"
-	"wmqx/app"
+	"github.com/jolestar/go-commons-pool"
+	"github.com/phachon/wmqx/app"
+	"github.com/phachon/wmqx/mq"
 	"github.com/streadway/amqp"
 	"net"
 	"time"
@@ -20,14 +21,16 @@ func NewRabbitMQPools() *RabbitMQ {
 
 // init rabbitMQ pools
 func (rMQPool *RabbitMQ) Init(maxPools int) {
-	p := pool.NewObjectPoolWithDefaultConfig(new(RabbitMQFactory))
+	ctx := context.Background()
+	p := pool.NewObjectPoolWithDefaultConfig(ctx, new(RabbitMQFactory))
 	p.Config.MaxTotal = maxPools
 	rMQPool.ObjectPool = p
 }
 
 // get a rabbitMQ obj
 func (rMQPool *RabbitMQ) GetMQ() (*mq.RabbitMQ, error) {
-	obj, err := rMQPool.ObjectPool.BorrowObject()
+	ctx := context.Background()
+	obj, err := rMQPool.ObjectPool.BorrowObject(ctx)
 	if err != nil {
 		return &mq.RabbitMQ{}, err
 	}
@@ -36,16 +39,16 @@ func (rMQPool *RabbitMQ) GetMQ() (*mq.RabbitMQ, error) {
 
 // recover a rabbitMQ obj
 func (rMQPool *RabbitMQ) Recover(obj interface{}) {
-	rMQPool.ObjectPool.ReturnObject(obj)
+	ctx := context.Background()
+	rMQPool.ObjectPool.ReturnObject(ctx, obj)
 }
 
 // pools factory
 type RabbitMQFactory struct {
-
 }
 
 // make rabbitMQ object
-func (f *RabbitMQFactory) MakeObject() (*pool.PooledObject, error) {
+func (f *RabbitMQFactory) MakeObject(ctx context.Context) (*pool.PooledObject, error) {
 
 	username := app.Conf.GetString("rabbitmq.username")
 	password := app.Conf.GetString("rabbitmq.password")
@@ -58,8 +61,8 @@ func (f *RabbitMQFactory) MakeObject() (*pool.PooledObject, error) {
 	uri := fmt.Sprintf("amqp://%s:%s@%s:%d%s", username, password, host, port, vHost)
 	config := amqp.Config{
 		Heartbeat: time.Duration(heartBeat) * time.Second,
-		Dial: func(network, addr string) (net.Conn, error){
-			c, err := net.DialTimeout(network, addr, time.Duration(connTimeout) * time.Second)
+		Dial: func(network, addr string) (net.Conn, error) {
+			c, err := net.DialTimeout(network, addr, time.Duration(connTimeout)*time.Second)
 			if err != nil {
 				return nil, err
 			}
@@ -74,14 +77,14 @@ func (f *RabbitMQFactory) MakeObject() (*pool.PooledObject, error) {
 }
 
 // do destroy
-func (f *RabbitMQFactory) DestroyObject(object *pool.PooledObject) error {
+func (f *RabbitMQFactory) DestroyObject(ctx context.Context, object *pool.PooledObject) error {
 	//do destroy
 	object.Object.(*mq.RabbitMQ).Close()
 	return nil
 }
 
 // do validate
-func (f *RabbitMQFactory) ValidateObject(object *pool.PooledObject) bool {
+func (f *RabbitMQFactory) ValidateObject(ctx context.Context, object *pool.PooledObject) bool {
 	//do validate
 	rabbitMq := object.Object.(*mq.RabbitMQ)
 	conn := rabbitMq.Conn
@@ -97,13 +100,13 @@ func (f *RabbitMQFactory) ValidateObject(object *pool.PooledObject) bool {
 }
 
 // do activate
-func (f *RabbitMQFactory) ActivateObject(object *pool.PooledObject) error {
+func (f *RabbitMQFactory) ActivateObject(ctx context.Context, object *pool.PooledObject) error {
 	//do activate
 	return nil
 }
 
 // do passivate
-func (f *RabbitMQFactory) PassivateObject(object *pool.PooledObject) error {
+func (f *RabbitMQFactory) PassivateObject(ctx context.Context, object *pool.PooledObject) error {
 	//do passivate
 	return nil
 }

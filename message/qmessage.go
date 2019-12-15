@@ -1,36 +1,36 @@
 package message
 
 import (
-	"sync"
 	"errors"
+	"sync"
 )
 
 type Message struct {
 	Consumers   []*Consumer `json:"consumers"`
-	Durable     bool `json:"durable"`
-	IsNeedToken bool `json:"is_need_token"`
-	Mode        string `json:"mode"`
-	Name        string `json:"name"`
-	Token       string `json:"token"`
-	Comment     string `json:"comment"`
+	Durable     bool        `json:"durable"`
+	IsNeedToken bool        `json:"is_need_token"`
+	Mode        string      `json:"mode"`
+	Name        string      `json:"name"`
+	Token       string      `json:"token"`
+	Comment     string      `json:"comment"`
 }
 
 type Consumer struct {
-	ID        string `json:"id"`
-	URL       string `json:"url"`
-	RouteKey  string `json:"route_key"`
+	ID        string  `json:"id"`
+	URL       string  `json:"url"`
+	RouteKey  string  `json:"route_key"`
 	Timeout   float64 `json:"timeout"`
 	Code      float64 `json:"code"`
-	CheckCode bool `json:"check_code"`
-	Comment   string `json:"comment"`
+	CheckCode bool    `json:"check_code"`
+	Comment   string  `json:"comment"`
 }
 
 type QMessageRecordFunc func() QMessageRecord
 
 type QMessage struct {
-	Lock *sync.Mutex
+	Lock     *sync.Mutex
 	Messages []*Message
-	record QMessageRecord
+	record   QMessageRecord
 }
 
 type QMessageRecord interface {
@@ -43,12 +43,12 @@ type QMessageRecord interface {
 var records = make(map[string]QMessageRecordFunc)
 
 // Register QMessage record
-func Register(recordType string, record QMessageRecordFunc)  {
+func Register(recordType string, record QMessageRecordFunc) {
 	if records[recordType] != nil {
-		panic("wmqx: QMessage record type "+ recordType +" already registered!")
+		panic("wmqx: QMessage record type " + recordType + " already registered!")
 	}
 	if record == nil {
-		panic("wmqx: QMessage record type "+ recordType +" is nil!")
+		panic("wmqx: QMessage record type " + recordType + " is nil!")
 	}
 
 	records[recordType] = record
@@ -59,7 +59,7 @@ func NewQMessage(recordTypeName string, config *RecordConfig) (qm *QMessage, err
 
 	recordType, ok := records[recordTypeName]
 	if ok == false {
-		return qm, errors.New("QMessage record type "+ recordTypeName +" not support!")
+		return qm, errors.New("QMessage record type " + recordTypeName + " not support!")
 	}
 	recordFun := recordType()
 	err = recordFun.Init(config)
@@ -67,9 +67,9 @@ func NewQMessage(recordTypeName string, config *RecordConfig) (qm *QMessage, err
 		return
 	}
 	qm = &QMessage{
-		Lock: &sync.Mutex{},
+		Lock:     &sync.Mutex{},
 		Messages: []*Message{},
-		record: recordFun,
+		record:   recordFun,
 	}
 	// load record to Messages
 	err = qm.LoadRecord()
@@ -128,7 +128,7 @@ func (qm *QMessage) UpdateMessageByName(name string, messageValue *Message) erro
 	if isExist == true {
 		err := qm.record.Write(qm.Messages)
 		return err
-	}else {
+	} else {
 		return errors.New("message not exist!")
 	}
 }
@@ -258,7 +258,7 @@ func (qm *QMessage) UpdateConsumerByName(name string, consumerVal *Consumer) err
 	if isExist == true {
 		err := qm.record.Write(qm.Messages)
 		return err
-	}else {
+	} else {
 		return errors.New("consumer id not exist! ")
 	}
 }

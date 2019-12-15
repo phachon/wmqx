@@ -4,9 +4,9 @@ import (
 	"testing"
 )
 
-func GetQMessage() (qm *QMessage, err error){
+func GetQMessage() (qm *QMessage, err error) {
 	fileConfig := &RecordFileConfig{
-		Filename: "../message.json",
+		Filename:     "../message.json",
 		JsonBeautify: true,
 	}
 	qm, err = NewQMessage("file", NewRecordConfigFile(fileConfig))
@@ -30,13 +30,13 @@ func TestQMessage_AddMessage(t *testing.T) {
 	}
 
 	msg := &Message{
-		Consumers: []*Consumer{},
-		Durable: true,
+		Consumers:   []*Consumer{},
+		Durable:     true,
 		IsNeedToken: true,
-		Mode: "topic",
-		Name: "ada",
-		Token: "this is token",
-		Comment: "this is comment",
+		Mode:        "topic",
+		Name:        "ada",
+		Token:       "this is token",
+		Comment:     "this is comment",
 	}
 	err = qm.AddMessage(msg)
 	if err != nil {
@@ -64,13 +64,13 @@ func TestQMessage_UpdateRecord(t *testing.T) {
 	}
 
 	msg := &Message{
-		Consumers: []*Consumer{},
-		Durable: true,
+		Consumers:   []*Consumer{},
+		Durable:     true,
 		IsNeedToken: true,
-		Mode: "topic",
-		Name: "PPPPPADADADASD",
-		Token: "this is token",
-		Comment: "this is comment",
+		Mode:        "topic",
+		Name:        "PPPPPADADADASD",
+		Token:       "this is token",
+		Comment:     "this is comment",
 	}
 	err = qm.AddMessage(msg)
 	if err != nil {
@@ -87,13 +87,13 @@ func TestQMessage_AddConsumer(t *testing.T) {
 	}
 
 	consum := &Consumer{
-		ID: "b0a38e68-8b36-4d85-6610-4e10425e4ada8",
-		URL: "htp://127.0.0.1:8099/index.php",
-		RouteKey: "test routekey",
-		Timeout: 5000,
-		Code: 500,
+		ID:        "b0a38e68-8b36-4d85-6610-4e10425e4ada8",
+		URL:       "htp://127.0.0.1:8099/index.php",
+		RouteKey:  "test routekey",
+		Timeout:   5000,
+		Code:      500,
 		CheckCode: false,
-		Comment: "this is a test comment",
+		Comment:   "this is a test comment",
 	}
 	err = qm.AddConsumer("aa", consum)
 	if err != nil {

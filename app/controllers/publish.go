@@ -1,12 +1,12 @@
 package controllers
 
 import (
+	"github.com/phachon/wmqx/app"
+	"github.com/phachon/wmqx/app/service"
+	"github.com/phachon/wmqx/container"
+	"github.com/phachon/wmqx/message"
 	"github.com/valyala/fasthttp"
 	"strings"
-	"wmqx/container"
-	"wmqx/app"
-	"wmqx/message"
-	"wmqx/app/service"
 )
 
 type PublishController struct {
@@ -60,11 +60,11 @@ func (this *PublishController) Publish(ctx *fasthttp.RequestCtx) {
 	})
 
 	publishMsg := &message.PublishMessage{
-		Header:headerMap,
-		Ip: ip,
-		Body: string(bodyByte),
+		Header: headerMap,
+		Ip:     ip,
+		Body:   string(bodyByte),
 		Method: method,
-		Args: queryString,
+		Args:   queryString,
 	}
 	publishJson, err := publishMsg.Encode()
 	if err != nil {

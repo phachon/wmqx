@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"os"
 	"bytes"
+	"os"
 )
 
 const (
@@ -11,13 +11,13 @@ const (
 
 var Tail = NewTail()
 
-type tail struct {}
+type tail struct{}
 
 func NewTail() *tail {
 	return &tail{}
 }
 
-func (t *tail)Run(filename string, n int) (lines []string, err error) {
+func (t *tail) Run(filename string, n int) (lines []string, err error) {
 	f, e := os.Stat(filename)
 	if e == nil {
 		size := f.Size()
@@ -46,7 +46,7 @@ func (t *tail)Run(filename string, n int) (lines []string, err error) {
 						for i := mm - 1; i >= 0; i-- {
 							if b[i] == '\n' {
 								bLine := bytes.NewBuffer([]byte{})
-								bLine.Write(b[i + 1:j])
+								bLine.Write(b[i+1 : j])
 								j = i
 								if bTail.Len() > 0 {
 									bLine.Write(bTail.Bytes())
@@ -56,7 +56,7 @@ func (t *tail)Run(filename string, n int) (lines []string, err error) {
 								if (nn == n && bLine.Len() > 0) || nn < n {
 									//skip last "\n"
 									lines = append(lines, bLine.String())
-									nn --
+									nn--
 								}
 								if nn == 0 {
 									flag = false

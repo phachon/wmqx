@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"wmqx/container"
+	"github.com/phachon/wmqx/app"
+	"github.com/phachon/wmqx/app/service"
+	"github.com/phachon/wmqx/container"
+	"github.com/phachon/wmqx/message"
 	"github.com/valyala/fasthttp"
-	"wmqx/message"
-	"wmqx/app/service"
-	"wmqx/app"
 )
 
 type MessageController struct {
@@ -31,7 +31,7 @@ func (this *MessageController) Add(ctx *fasthttp.RequestCtx) {
 	mode := this.GetCtxString(ctx, "mode")
 	token := this.GetCtxString(ctx, "token")
 
-	if name == "" || comment == ""{
+	if name == "" || comment == "" {
 		this.jsonError(ctx, "param require!", nil)
 		return
 	}
@@ -47,13 +47,13 @@ func (this *MessageController) Add(ctx *fasthttp.RequestCtx) {
 	}
 
 	msg := &message.Message{
-		Consumers   : []*message.Consumer{},
-		Durable     : durable,
-		IsNeedToken : isNeedToken,
-		Mode        : mode,
-		Name        : name,
-		Token       : token,
-		Comment     : comment,
+		Consumers:   []*message.Consumer{},
+		Durable:     durable,
+		IsNeedToken: isNeedToken,
+		Mode:        mode,
+		Name:        name,
+		Token:       token,
+		Comment:     comment,
 	}
 	err := service.MQ.DeclareExchange(name, mode, durable)
 	if err != nil {
@@ -101,13 +101,13 @@ func (this *MessageController) Update(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	msg := &message.Message {
-		Durable     : durable,
-		IsNeedToken : isNeedToken,
-		Mode        : mode,
-		Name        : name,
-		Token       : token,
-		Comment     : comment,
+	msg := &message.Message{
+		Durable:     durable,
+		IsNeedToken: isNeedToken,
+		Mode:        mode,
+		Name:        name,
+		Token:       token,
+		Comment:     comment,
 	}
 	err := service.MQ.DeclareExchange(name, mode, durable)
 	if err != nil {
@@ -149,19 +149,19 @@ func (this *MessageController) Delete(ctx *fasthttp.RequestCtx) {
 
 	err := service.MQ.DeleteExchange(name)
 	if err != nil {
-		app.Log.Error("Delete message "+name+" failed: "+err.Error())
+		app.Log.Error("Delete message " + name + " failed: " + err.Error())
 		this.jsonError(ctx, "delete message failed: "+err.Error(), nil)
 		return
 	}
 
 	err = container.Ctx.QMessage.DeleteMessageByName(name)
 	if err != nil {
-		app.Log.Error("Delete message "+name+" failed: "+err.Error())
+		app.Log.Error("Delete message " + name + " failed: " + err.Error())
 		this.jsonError(ctx, "delete message failed: "+err.Error(), nil)
 		return
 	}
 
-	app.Log.Info("Delete message "+name+" success!")
+	app.Log.Info("Delete message " + name + " success!")
 
 	this.jsonSuccess(ctx, "success", nil)
 }
@@ -191,11 +191,11 @@ func (this *MessageController) Status(ctx *fasthttp.RequestCtx) {
 	if len(consumers) > 0 {
 		for _, consumer := range consumers {
 			item := map[string]interface{}{
-				"name": name,
+				"name":        name,
 				"consumer_id": consumer.ID,
-				"status": 0,
-				"last_time": 0,
-				"count": 0,
+				"status":      0,
+				"last_time":   0,
+				"count":       0,
 			}
 			consumerKey := container.Ctx.GetConsumerKey(name, consumer.ID)
 			for _, process := range consumerProcess {
@@ -206,7 +206,7 @@ func (this *MessageController) Status(ctx *fasthttp.RequestCtx) {
 			}
 			count, err := service.MQ.CountConsumerMessages(consumer.ID, name)
 			if err != nil {
-				app.Log.Error("count consumer message failed, "+err.Error())
+				app.Log.Error("count consumer message failed, " + err.Error())
 			}
 			item["count"] = count
 			data = append(data, item)
@@ -297,7 +297,7 @@ func (this *MessageController) Reload(ctx *fasthttp.RequestCtx) {
 	// reload exchange
 	err = service.MQ.ReloadExchange(name)
 	if err != nil {
-		app.Log.Error("Reload error: "+err.Error())
+		app.Log.Error("Reload error: " + err.Error())
 		this.jsonError(ctx, "reload error: "+err.Error(), nil)
 		return
 	}
