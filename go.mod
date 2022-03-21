@@ -14,5 +14,5 @@ require (
 	github.com/phachon/go-logger v0.0.0-20180912060440-89ff8a2898f6
 	github.com/spf13/viper v1.6.1
 	github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271
-	github.com/valyala/fasthttp v1.6.0
+	github.com/valyala/fasthttp v1.34.0
 )
